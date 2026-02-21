@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
-    background = Color(0xFFE3DBCE),
+    background = Color(0xFFEAE3D9),
     onBackground = Color.Black,
-    surface = Color(0xFFE3DBCE),
+    surface = Color(0xFFEAE3D9),
     onSurface = Color.Black,
     primary = Color.White,
     onPrimary = Color.Black,
