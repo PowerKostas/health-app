@@ -38,6 +38,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 
+// Chooses the app's theme, either dynamic dark color or dynamic light color or dark color or light color
 @Composable
 fun GoHealthTheme(darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = false, content: @Composable () -> Unit) {
     val colorScheme = when {
@@ -47,6 +48,7 @@ fun GoHealthTheme(darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Bool
         }
 
         darkTheme -> DarkColorScheme
+
         else -> LightColorScheme
     }
 

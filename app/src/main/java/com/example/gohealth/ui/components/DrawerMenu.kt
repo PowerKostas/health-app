@@ -1,8 +1,7 @@
-package com.example.gohealth
+package com.example.gohealth.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DrawerValue
@@ -11,7 +10,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -23,7 +21,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -32,11 +29,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gohealth.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerMenu() {
+    // drawerState is used to handle the opening and closing of the menu, scope is for the opening and closing animation, whenever the value
+    // of currentScreen changes, Compose automatically reruns every line in this code that has currentScreen in it
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentScreen by remember { mutableStateOf("Profile") }
@@ -59,29 +59,69 @@ fun DrawerMenu() {
 
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
-                NavigationDrawerItem(
-                    label = { Text("Profile") },
-                    selected = currentScreen == "Profile",
-                    shape = RectangleShape,
-                    modifier = Modifier.height(80.dp),
-
-                    onClick = {
-                        currentScreen = "Profile"
+                DrawerMenuItem(
+                    title = "Home",
+                    currentScreen = currentScreen,
+                    onItemClick = { selectedTitle ->
+                        currentScreen = selectedTitle
                         scope.launch { drawerState.close() }
                     }
                 )
 
-                NavigationDrawerItem(
-                    label = { Text("Settings") },
-                    selected = currentScreen == "Settings",
-                    shape = RectangleShape,
-                    modifier = Modifier.height(80.dp),
-
-                    onClick = {
-                        currentScreen = "Settings"
+                DrawerMenuItem(
+                    title = "Water",
+                    currentScreen = currentScreen,
+                    onItemClick = { selectedTitle ->
+                        currentScreen = selectedTitle
                         scope.launch { drawerState.close() }
                     }
                 )
+
+                DrawerMenuItem(
+                    title = "Calories",
+                    currentScreen = currentScreen,
+                    onItemClick = { selectedTitle ->
+                        currentScreen = selectedTitle
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
+                DrawerMenuItem(
+                    title = "Push-ups",
+                    currentScreen = currentScreen,
+                    onItemClick = { selectedTitle ->
+                        currentScreen = selectedTitle
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
+                DrawerMenuItem(
+                    title = "Steps",
+                    currentScreen = currentScreen,
+                    onItemClick = { selectedTitle ->
+                        currentScreen = selectedTitle
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
+                DrawerMenuItem(
+                    title = "Profile",
+                    currentScreen = currentScreen,
+                    onItemClick = { selectedTitle ->
+                        currentScreen = selectedTitle
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
+                DrawerMenuItem(
+                    title = "Leaderboards",
+                    currentScreen = currentScreen,
+                    onItemClick = { selectedTitle ->
+                        currentScreen = selectedTitle
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
             }
         }
     ) { Scaffold(
@@ -98,8 +138,13 @@ fun DrawerMenu() {
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                 when (currentScreen) {
-                    "Profile" -> ProfileScreen()
-                    "Settings" -> Text("This is the Settings Screen")
+                    "Home" -> Text("This is the Home screen")
+                    "Water" -> Text("This is the Water Intake screen")
+                    "Calories" -> Text("This is the Calories Intake screen")
+                    "Push-ups" -> Text("This is the Push-ups screen")
+                    "Steps" -> Text("This is the Steps screen")
+                    "Profile" -> Text("This is the Profile screen")
+                    "Leaderboards" -> Text("This is the Leaderboards screen")
                 }
             }
 

@@ -1,4 +1,4 @@
-package com.example.gohealth
+package com.example.gohealth.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -15,7 +15,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import com.example.gohealth.R
 
+// Top bar with the 3 lines button, the title and the GoHealth logo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(title: String, onMenuClick: () -> Unit) {

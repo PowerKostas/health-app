@@ -5,14 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import com.example.gohealth.ui.components.DrawerMenu
 import com.example.gohealth.ui.theme.GoHealthTheme
 
+// This is where the program starts, does basic settings and runs the custom drawer menu function, which is the center of the app
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,13 +26,5 @@ class MainActivity : ComponentActivity() {
                 DrawerMenu()
             }
         }
-    }
-}
-
-
-@Composable
-fun ProfileScreen(modifier : Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Hello World!")
     }
 }
