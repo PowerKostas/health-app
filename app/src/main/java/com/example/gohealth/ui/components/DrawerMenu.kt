@@ -132,7 +132,8 @@ fun DrawerMenu() {
 
             }
         }
-    ) { Scaffold(
+    ) {
+        Scaffold(
         modifier = Modifier.fillMaxSize(),
 
         topBar = {
@@ -155,7 +156,6 @@ fun DrawerMenu() {
                     "Leaderboards" -> Text("This is the Leaderboards screen")
                 }
             }
-
         }
     }
 }
