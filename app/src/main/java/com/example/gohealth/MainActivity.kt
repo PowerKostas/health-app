@@ -7,9 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.example.gohealth.ui.components.DrawerMenu
-import com.example.gohealth.ui.theme.GoHealthTheme
+import com.example.gohealth.ui.themes.GoHealthTheme
 
-// This is where the program starts, does basic settings and runs the custom drawer menu function, which is the center of the app
+// This is where the program starts, does basic settings and runs the custom rawer menu function, which is the center of the app
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

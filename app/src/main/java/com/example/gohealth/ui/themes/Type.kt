@@ -1,4 +1,4 @@
-package com.example.gohealth.ui.theme
+package com.example.gohealth.ui.themes
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

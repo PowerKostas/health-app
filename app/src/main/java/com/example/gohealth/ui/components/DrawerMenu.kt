@@ -30,6 +30,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gohealth.R
+import com.example.gohealth.ui.screens.ProfileScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,6 +61,7 @@ fun DrawerMenu() {
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
                 DrawerMenuItem(
+                    appIcon = R.drawable.home,
                     title = "Home",
                     currentScreen = currentScreen,
                     onItemClick = { selectedTitle ->
@@ -69,6 +71,7 @@ fun DrawerMenu() {
                 )
 
                 DrawerMenuItem(
+                    appIcon = R.drawable.water,
                     title = "Water",
                     currentScreen = currentScreen,
                     onItemClick = { selectedTitle ->
@@ -78,6 +81,7 @@ fun DrawerMenu() {
                 )
 
                 DrawerMenuItem(
+                    appIcon = R.drawable.calories,
                     title = "Calories",
                     currentScreen = currentScreen,
                     onItemClick = { selectedTitle ->
@@ -87,6 +91,7 @@ fun DrawerMenu() {
                 )
 
                 DrawerMenuItem(
+                    appIcon = R.drawable.push_ups,
                     title = "Push-ups",
                     currentScreen = currentScreen,
                     onItemClick = { selectedTitle ->
@@ -96,6 +101,7 @@ fun DrawerMenu() {
                 )
 
                 DrawerMenuItem(
+                    appIcon = R.drawable.steps,
                     title = "Steps",
                     currentScreen = currentScreen,
                     onItemClick = { selectedTitle ->
@@ -105,6 +111,7 @@ fun DrawerMenu() {
                 )
 
                 DrawerMenuItem(
+                    appIcon = R.drawable.profile,
                     title = "Profile",
                     currentScreen = currentScreen,
                     onItemClick = { selectedTitle ->
@@ -114,6 +121,7 @@ fun DrawerMenu() {
                 )
 
                 DrawerMenuItem(
+                    appIcon = R.drawable.leaderboards,
                     title = "Leaderboards",
                     currentScreen = currentScreen,
                     onItemClick = { selectedTitle ->
@@ -143,7 +151,7 @@ fun DrawerMenu() {
                     "Calories" -> Text("This is the Calories Intake screen")
                     "Push-ups" -> Text("This is the Push-ups screen")
                     "Steps" -> Text("This is the Steps screen")
-                    "Profile" -> Text("This is the Profile screen")
+                    "Profile" -> ProfileScreen()
                     "Leaderboards" -> Text("This is the Leaderboards screen")
                 }
             }

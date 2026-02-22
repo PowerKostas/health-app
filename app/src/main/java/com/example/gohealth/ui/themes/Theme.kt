@@ -1,4 +1,4 @@
-package com.example.gohealth.ui.theme
+package com.example.gohealth.ui.themes
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
