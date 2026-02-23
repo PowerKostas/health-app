@@ -1,5 +1,6 @@
 package com.example.gohealth.ui.components
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,7 +22,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -33,20 +36,27 @@ import com.example.gohealth.R
 import com.example.gohealth.ui.screens.ProfileScreen
 import kotlinx.coroutines.launch
 
+// Drawer menu is the central screen of the app. It has the Scaffold, the top bar that remains static and is in charge of switching the
+// different screens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerMenu() {
     // drawerState is used to handle the opening and closing of the menu, scope is for the opening and closing animation, whenever the value
-    // of currentScreen changes, Compose automatically reruns every line in this code that has currentScreen in it
+    // of currentScreen changes, Compose automatically reruns every line in this code that has currentScreen in it. Because this is the
+    // central screen, this is where the main focus manager goes
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentScreen by remember { mutableStateOf("Profile") }
+    val focusManager = LocalFocusManager.current
 
     ModalNavigationDrawer(
         drawerState = drawerState,
 
         drawerContent = {
-            ModalDrawerSheet (modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp * 0.7f), drawerContainerColor = MaterialTheme.colorScheme.surface) {
+            ModalDrawerSheet (
+                modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp * 0.7f),
+                drawerContainerColor = MaterialTheme.colorScheme.surface
+            ) {
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = Color(0xFF55403E))) { append("Go") }
@@ -134,17 +144,19 @@ fun DrawerMenu() {
         }
     ) {
         Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) { detectTapGestures(onTap = { focusManager.clearFocus() })},
 
         topBar = {
             TopBar(
                 title = currentScreen,
                 onMenuClick = {
+                    focusManager.clearFocus()
                     scope.launch { drawerState.open() }
                 }
             )
-        }
-        ) { innerPadding ->
+        }) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                 when (currentScreen) {
                     "Home" -> Text("This is the Home screen")

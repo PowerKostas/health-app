@@ -17,21 +17,21 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.example.gohealth.R
 
-// Top bar with the 3 lines button, the title and the GoHealth logo
+// Top bar with the drawer menu button, the title and the GoHealth logo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(title: String, onMenuClick: () -> Unit) {
     TopAppBar(
-        title = { Text(title) },
-
         navigationIcon = {
             IconButton(onClick = onMenuClick) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu"
+                    contentDescription = "Drawer Menu"
                 )
             }
         },
+
+        title = { Text(title) },
 
         actions = {
             Text(
