@@ -5,11 +5,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.example.gohealth.ui.components.DrawerMenu
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gohealth.ui.components.central.DrawerMenu
+import com.example.gohealth.ui.state.ThemeViewModel
 import com.example.gohealth.ui.themes.GoHealthTheme
 
-// This is where the program starts, does basic settings and runs the custom rawer menu function, which is the center of the app
+// This is where the program starts, sets basic settings and runs the custom drawer menu function, which is the center of the app
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +25,18 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            GoHealthTheme {
+            // Gets the set theme option and passes it to the function that sets the theme
+            val themeViewModel: ThemeViewModel = viewModel()
+
+            val isDarkTheme = when (themeViewModel.selectedTheme) {
+                "Light" -> false
+                "Dark" -> true
+                else -> isSystemInDarkTheme()
+            }
+
+            val useDynamicColor = themeViewModel.selectedTheme == "Dynamic"
+
+            GoHealthTheme(darkTheme = isDarkTheme, dynamicColor = useDynamicColor) {
                 DrawerMenu()
             }
         }

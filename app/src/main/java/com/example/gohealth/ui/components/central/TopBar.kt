@@ -1,4 +1,4 @@
-package com.example.gohealth.ui.components
+package com.example.gohealth.ui.components.central
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
