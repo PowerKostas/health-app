@@ -1,6 +1,7 @@
 package com.example.gohealth.ui.screens
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +34,6 @@ import com.example.gohealth.ui.components.profile.ProfilePicture
 import com.example.gohealth.ui.viewModels.ThemeViewModel
 import com.example.gohealth.ui.viewModels.UsersViewModel
 
-// Gets the themeViewModel to update the state of the theme option
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -43,6 +43,7 @@ fun ProfileScreen(
     val usersList by usersViewModel.users.collectAsState()
     val currentUser = usersList.firstOrNull()
 
+    var profilePictureString by remember { mutableStateOf<String?>(null) }
     var username by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
@@ -51,16 +52,40 @@ fun ProfileScreen(
     var activityLevel by remember { mutableStateOf("") }
     var weightGoal by remember { mutableStateOf("") }
 
+    // Flag to stop the program from entering the LaunchedEffect function when typing in the text field
+    var initialLoadDone by remember { mutableStateOf(false) }
+
+    // When the app first opens it initializes the variables with the values from the database, also runs every time currentUser changes, but
+    // that will probably not happen
     LaunchedEffect(currentUser) {
-        if (currentUser != null) {
+        if (currentUser != null && !initialLoadDone) {
+            profilePictureString = currentUser.profilePictureString
             username = currentUser.username
             gender = currentUser.gender
-            age = currentUser.age.toString()
-            height = currentUser.height.toString()
-            weight = currentUser.weight.toString()
+
+            val formatNumber = { num: Float? ->
+                when {
+                    num == null -> "" // If DB is null, show blank
+                    num % 1 == 0f -> num.toInt().toString() // If whole number, chop off .0
+                    else -> num.toString() // If decimal, leave it alone
+                }
+            }
+
+            age = formatNumber(currentUser.age)
+            height = formatNumber(currentUser.height)
+            weight = formatNumber(currentUser.weight)
+
             activityLevel = currentUser.activityLevel
             weightGoal = currentUser.weightGoal
+
+            initialLoadDone = true
         }
+    }
+
+    // Blank loading screen
+    if (!initialLoadDone ) {
+        Box(modifier = Modifier.fillMaxSize())
+        return
     }
 
     val scrollState = rememberScrollState()
@@ -68,7 +93,19 @@ fun ProfileScreen(
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
         .fillMaxSize()
         .verticalScroll(scrollState)) {
-        ProfilePicture()
+        ProfilePicture(
+            profilePictureString
+
+        // Function that triggers when a new profile picture is tapped, it makes sure that a user is actually loaded on the screen, updates
+        // the UI instantly, creates a copy of the user and only updates the profile picture String in the local database
+        ) { newProfilePictureString ->
+            profilePictureString = newProfilePictureString
+            currentUser?.let { user ->
+                usersViewModel.updateUser(
+                    user.copy(profilePictureString = newProfilePictureString)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -95,7 +132,9 @@ fun ProfileScreen(
                     value = username,
                     label = { Text("Username") },
                     modifier = Modifier.fillMaxWidth(),
-                    onValueChange = {newValue ->
+
+                    // Updates the local database, every time the text changes
+                    onValueChange = { newValue ->
                         username = newValue
 
                         if (currentUser != null) {
@@ -107,27 +146,90 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                DropdownMenu("Gender", listOf("Male", "Female"))
+                DropdownMenu(
+                    "Gender", listOf("Male", "Female"),
+                    gender
+                ) { newValue ->
+                    gender = newValue
+                    currentUser?.let { user ->
+                        usersViewModel.updateUser(
+                            user.copy(gender = newValue)
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                NumberTextField("Age", 150f)
+                NumberTextField(
+                    "Age",
+                    150f,
+                    age
+                ) { newValue ->
+                    age = newValue
+                    currentUser?.let { user ->
+                        usersViewModel.updateUser(
+                            user.copy(age = newValue.toFloatOrNull())
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                NumberTextField("Height (cm)", 300f)
+                NumberTextField(
+                    "Height (cm)",
+                    300f,
+                    height
+                ) { newValue ->
+                    height = newValue
+                    currentUser?.let { user ->
+                        usersViewModel.updateUser(
+                            user.copy(height = newValue.toFloatOrNull())
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                NumberTextField("Weight (kg)", 700f)
+                NumberTextField(
+                    "Weight (kg)",
+                    700f,
+                    weight
+                ) { newValue ->
+                    weight = newValue
+                    currentUser?.let { user ->
+                        usersViewModel.updateUser(
+                            user.copy(weight = newValue.toFloatOrNull())
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                DropdownMenu("Activity Level", listOf("Sedentary", "Moderate", "High"))
+                DropdownMenu(
+                    "Activity Level", listOf("Sedentary", "Moderate", "High"),
+                    activityLevel
+                ) { newValue ->
+                    activityLevel = newValue
+                    currentUser?.let { user ->
+                        usersViewModel.updateUser(
+                            user.copy(activityLevel = newValue)
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                DropdownMenu("Weight Goal", listOf("Lose", "Maintain", "Gain"))
+                DropdownMenu(
+                    "Weight Goal", listOf("Lose", "Maintain", "Gain"),
+                    weightGoal
+                ) { newValue ->
+                    weightGoal = newValue
+                    currentUser?.let { user ->
+                        usersViewModel.updateUser(
+                            user.copy(weightGoal = newValue)
+                        )
+                    }
+                }
             }
         }
 
@@ -151,8 +253,17 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(16.dp)
                 )
         ) {
-            RadioButtonGroup(listOf("Light", "Dark", "Dynamic"), themeViewModel.selectedTheme) {
-                newTheme -> themeViewModel.update(newTheme)
+            RadioButtonGroup(
+                listOf("Light", "Dark", "Dynamic"),
+                themeViewModel.selectedTheme
+            ) { newTheme ->
+                themeViewModel.update(newTheme)
+
+                currentUser?.let { user ->
+                    usersViewModel.updateUser(
+                        user.copy(appearance = newTheme)
+                    )
+                }
             }
         }
     }

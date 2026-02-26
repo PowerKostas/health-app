@@ -17,23 +17,27 @@ import androidx.compose.ui.Modifier
 
 @ExperimentalMaterial3Api
 @Composable
-fun DropdownMenu(text: String, options: List<String>) {
+fun DropdownMenu(
+    text: String,
+    options: List<String>,
+    selectedValue: String,
+    onValueChange: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("") }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = selectedOption,
+            value = selectedValue,
             onValueChange = {},
             readOnly = true,
             label = { Text(text) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable),
         )
 
         ExposedDropdownMenu(
@@ -44,7 +48,7 @@ fun DropdownMenu(text: String, options: List<String>) {
                 DropdownMenuItem(
                     text = { Text(selectionOption) },
                     onClick = {
-                        selectedOption = selectionOption
+                        onValueChange(selectionOption)
                         expanded = false
                     }
                 )

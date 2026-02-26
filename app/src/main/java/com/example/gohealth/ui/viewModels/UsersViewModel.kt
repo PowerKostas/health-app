@@ -41,12 +41,12 @@ class UsersViewModel(private val usersDao: UsersDao) : ViewModel() {
         viewModelScope.launch {
             if (usersDao.getAll().first().isEmpty()) {
                 val defaultUsers = Users(
-                    profilePicturePath = "",
+                    profilePictureString = "",
                     username = "",
                     gender = "",
-                    age = 0,
-                    height = 0,
-                    weight = 0,
+                    age = null,
+                    height = null,
+                    weight = null,
                     activityLevel = "",
                     weightGoal = "",
                     appearance = ""

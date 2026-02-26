@@ -20,7 +20,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,22 +35,39 @@ import com.example.gohealth.R
 // Imported the Coil library to properly load big images (WebP images)
 // Adds a profile picture and a button below it that opens a menu to optionally select a new picture
 @Composable
-fun ProfilePicture() {
+fun ProfilePicture(
+    profilePictureString: String?,
+    onImageSelected: (String) -> Unit
+) {
     var showMenu by remember { mutableStateOf(false) }
-
-    val imageList = listOf(
-        R.drawable.bear, R.drawable.cat, R.drawable.dinosaur, R.drawable.dog,
-        R.drawable.dolphin, R.drawable.duck, R.drawable.eagle, R.drawable.elephant,
-        R.drawable.horse, R.drawable.lion, R.drawable.penguin, R.drawable.sheep
-    )
-
-    var currentImage by remember { mutableIntStateOf(R.drawable.lion) }
 
     val focusManager = LocalFocusManager.current
 
+    val avatarMap = mapOf(
+        "bear" to R.drawable.bear,
+        "cat" to R.drawable.cat,
+        "dinosaur" to R.drawable.dinosaur,
+        "dog" to R.drawable.dog,
+        "dolphin" to R.drawable.dolphin,
+        "duck" to R.drawable.duck,
+        "eagle" to R.drawable.eagle,
+        "elephant" to R.drawable.elephant,
+        "horse" to R.drawable.horse,
+        "lion" to R.drawable.lion,
+        "penguin" to R.drawable.penguin,
+        "sheep" to R.drawable.sheep
+    )
+
+    // Gets the profile picture from the profile picture string, null if it hasn't loaded yet, defaults to the lion if the user hasn't
+    // selected anything
+    val profilePicture = when (profilePictureString) {
+        null -> null
+        else -> avatarMap[profilePictureString] ?: R.drawable.lion
+    }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AsyncImage(
-            model = currentImage,
+            model = profilePicture,
             contentDescription = "Animal",
             modifier = Modifier.size(120.dp)
                 .border(width = 2.dp, color = MaterialTheme.colorScheme.onPrimary, shape = CircleShape).padding(2.dp)
@@ -75,10 +91,9 @@ fun ProfilePicture() {
                     contentPadding = PaddingValues(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(imageList) { imageId ->
+                ) { items(avatarMap.entries.toList()) { (imageString, image) ->
                         AsyncImage(
-                            model = imageId,
+                            model = image,
                             contentDescription = "Animal",
                             modifier = Modifier
                                 .aspectRatio(1f)
@@ -86,7 +101,7 @@ fun ProfilePicture() {
                                 .padding(2.dp)
                                 .clip(CircleShape)
                                 .clickable {
-                                    currentImage = imageId
+                                    onImageSelected(imageString)
                                     showMenu = false
                                 }
                         )
