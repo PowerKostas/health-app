@@ -41,7 +41,7 @@ fun TopBar(title: String, onMenuClick: () -> Unit) {
                 },
 
                 fontSize = 28.sp,
-                fontFamily = FontFamily(Font(R.font.fredoka_bold))
+                fontFamily = FontFamily(Font(R.font.fredoka_bold)),
             )
         }
     )

@@ -1,0 +1,62 @@
+package com.example.gohealth.ui.components.home
+
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.example.gohealth.ui.components.general.ProgressBar
+
+@Composable
+fun ProgressBox(modifier: Modifier, iconId: Int, progressBarColour: Color) {
+    Box(
+        contentAlignment = Alignment.TopCenter,
+        modifier = modifier
+            .aspectRatio(1f)
+
+            .border(
+                2.dp,
+                MaterialTheme.colorScheme.onSurface,
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            .padding(12.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = iconId),
+                contentDescription = "Category",
+                tint = Color.Unspecified,
+                modifier = Modifier.size(96.dp)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ProgressBar(modifier = Modifier.weight(1f), 8.dp, progressBarColour)
+
+                Text(
+                    text = "25%",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+        }
+    }
+}

@@ -1,6 +1,7 @@
 package com.example.gohealth.ui.screens
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -88,15 +89,17 @@ fun ProfileScreen(
 
     val scrollState = rememberScrollState()
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
         .fillMaxSize()
         .verticalScroll(scrollState)) {
         ProfilePicture(
             profilePictureString
-
+        ) {
         // Function that triggers when a new profile picture is tapped, it makes sure that a user is actually loaded on the screen, updates
         // the UI instantly, creates a copy of the user and only updates the profile picture String in the local database
-        ) { newProfilePictureString ->
+        newProfilePictureString ->
             profilePictureString = newProfilePictureString
             currentUser?.let { user ->
                 usersViewModel.updateUser(
@@ -125,7 +128,10 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(16.dp)
                 )
         ) {
-            Column(modifier = Modifier.padding(24.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(space = 24.dp),
+                modifier = Modifier.padding(24.dp)
+            ) {
                 OutlinedTextField(
                     value = username,
                     label = { Text("Username") },
@@ -142,8 +148,6 @@ fun ProfileScreen(
                     }
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
-
                 DropdownMenu(
                     "Gender", listOf("Male", "Female"),
                     gender
@@ -155,8 +159,6 @@ fun ProfileScreen(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
 
                 NumberTextField(
                     "Age",
@@ -171,8 +173,6 @@ fun ProfileScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
                 NumberTextField(
                     "Height (cm)",
                     300f,
@@ -185,8 +185,6 @@ fun ProfileScreen(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
 
                 NumberTextField(
                     "Weight (kg)",
@@ -201,8 +199,6 @@ fun ProfileScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
                 DropdownMenu(
                     "Activity Level", listOf("Sedentary", "Moderate", "High"),
                     activityLevel
@@ -214,8 +210,6 @@ fun ProfileScreen(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
 
                 DropdownMenu(
                     "Weight Goal", listOf("Lose", "Maintain", "Gain"),
