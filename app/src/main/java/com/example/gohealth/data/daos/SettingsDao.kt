@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import kotlinx.coroutines.flow.Flow
 import com.example.gohealth.data.entities.Settings
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SettingsDao {
@@ -13,8 +13,8 @@ interface SettingsDao {
     fun getAll(): Flow<List<Settings>>
 
     @Insert
-    suspend fun insert(user: Settings)
+    suspend fun insert(settings: Settings)
 
     @Update
-    suspend fun update(user: Settings)
+    suspend fun update(settings: Settings)
 }

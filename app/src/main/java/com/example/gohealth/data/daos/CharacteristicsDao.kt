@@ -16,8 +16,8 @@ interface CharacteristicsDao {
     fun getAll(): Flow<List<Characteristics>>
 
     @Insert
-    suspend fun insert(user: Characteristics)
+    suspend fun insert(characteristics: Characteristics)
 
     @Update
-    suspend fun update(user: Characteristics)
+    suspend fun update(characteristics: Characteristics)
 }

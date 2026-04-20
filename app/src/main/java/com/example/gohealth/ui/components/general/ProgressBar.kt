@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProgressBar(height: Dp, colour: Color) {
+fun ProgressBar(height: Dp, colour: Color, percentage: Float) {
     LinearProgressIndicator(
-        progress = { 0.25f },
+        progress = { percentage },
 
         modifier = Modifier
             .fillMaxWidth()

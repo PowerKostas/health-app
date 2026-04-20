@@ -27,20 +27,21 @@ class CharacteristicsViewModel(private val characteristicsDao: CharacteristicsDa
         }
     }
 
-    // The users variable holds every entry in the users table, because the app only supports a single local user, there will probably only
-    // be one entry
+    // The characteristics variable holds every entry in the users table, because the app only supports a single local user, there will
+    // probably only be one entry. Because of this block Compose automatically redraws the screen, everytime a change in the table happens
     val characteristics: StateFlow<List<Characteristics>> = characteristicsDao.getAll().stateIn(
         scope = viewModelScope,
         initialValue = emptyList(),
         started = SharingStarted.WhileSubscribed(5000)
     )
 
-    // Runs every time the app opens and checks if a user hasn't been created yet (first time the app opens). If there are no users it
-    // inserts a default user
-    init {
+    // Runs every time the app opens, SettingsViewModel calls it, and checks if a user hasn't been created yet (first time the app opens).
+    // If there are no users it inserts a default user
+    fun initializeUserCharacteristics(userId: Int) {
         viewModelScope.launch {
             if (characteristicsDao.getAll().first().isEmpty()) {
                 val defaultCharacteristics = Characteristics(
+                    userId = userId,
                     gender = "",
                     age = null,
                     height = null,
