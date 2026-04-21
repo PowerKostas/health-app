@@ -7,11 +7,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gohealth.R
@@ -30,10 +32,10 @@ fun HomeScreen() {
     val userTrackingsList by trackingsViewModel.trackings.collectAsState()
     val userTrackings = userTrackingsList.firstOrNull()
 
-    val waterProgress = userTrackings?.waterProgress ?: 0f
-    val caloriesProgress = userTrackings?.caloriesProgress ?: 0f
-    val pushUpsProgress = userTrackings?.pushUpsProgress ?: 0f
-    val stepsProgress = userTrackings?.stepsProgress ?: 0f
+    val waterProgress = userTrackings?.waterProgress ?: 0
+    val caloriesProgress = userTrackings?.caloriesProgress ?: 0
+    val pushUpsProgress = userTrackings?.pushUpsProgress ?: 0
+    val stepsProgress = userTrackings?.stepsProgress ?: 0
 
     val characteristicsViewModel = viewModel<CharacteristicsViewModel>(factory = CharacteristicsViewModel.Factory)
     val userCharacteristicsList by characteristicsViewModel.characteristics.collectAsState()
@@ -49,15 +51,24 @@ fun HomeScreen() {
         HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(64.dp),
+            verticalArrangement = Arrangement.spacedBy(48.dp),
             modifier = Modifier
-                .padding(12.dp, 32.dp, 12.dp, 32.dp)
+                .padding(16.dp, 32.dp, 16.dp, 32.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgress / waterGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgress / caloriesGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgress / pushUpsGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgress / stepsGoal).coerceAtMost(1.0f))
+            // Warning text, if the user hasn't filled all the characteristics in his profile
+            if (userCharacteristics == null || userCharacteristics.gender == "" || userCharacteristics.age == null || userCharacteristics.height == null || userCharacteristics.weight == null || userCharacteristics.activityLevel == "" || userCharacteristics.weightGoal == "") {
+                Text(
+                    text = "Complete your profile for more personalized results.",
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgress.toFloat() / waterGoal).coerceAtMost(1.0f))
+            ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgress.toFloat() / caloriesGoal).coerceAtMost(1.0f))
+            ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgress.toFloat() / pushUpsGoal).coerceAtMost(1.0f))
+            ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgress.toFloat() / stepsGoal).coerceAtMost(1.0f))
         }
     }
 }

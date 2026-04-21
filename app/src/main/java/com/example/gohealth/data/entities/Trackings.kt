@@ -19,8 +19,8 @@ import androidx.room.PrimaryKey
 
 data class Trackings(
     @PrimaryKey val userId: Int,
-    @ColumnInfo(name = "water_progress") val waterProgress: Float?,
-    @ColumnInfo(name = "calories_progress") val caloriesProgress: Float?,
-    @ColumnInfo(name = "push_ups_progress") val pushUpsProgress: Float?,
-    @ColumnInfo(name = "steps_progress") val stepsProgress: Float?
+    @ColumnInfo(name = "water_progress") val waterProgress: Int?,
+    @ColumnInfo(name = "calories_progress") val caloriesProgress: Int?,
+    @ColumnInfo(name = "push_ups_progress") val pushUpsProgress: Int?,
+    @ColumnInfo(name = "steps_progress") val stepsProgress: Int?
 )

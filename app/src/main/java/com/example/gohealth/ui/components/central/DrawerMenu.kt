@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,9 +37,16 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gohealth.R
+import com.example.gohealth.helpers.calculateCaloriesGoal
+import com.example.gohealth.helpers.calculatePushUpsGoal
+import com.example.gohealth.helpers.calculateWaterGoal
+import com.example.gohealth.ui.screens.CategoriesScreen
 import com.example.gohealth.ui.screens.HomeScreen
 import com.example.gohealth.ui.screens.ProfileScreen
+import com.example.gohealth.ui.viewModels.CharacteristicsViewModel
+import com.example.gohealth.ui.viewModels.TrackingsViewModel
 import kotlinx.coroutines.launch
 
 // Drawer menu is the central screen of the app. It has the Scaffold, the top bar that remains static and is in charge of switching the
@@ -46,6 +54,15 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerMenu() {
+    // Initiates database
+    val trackingsViewModel = viewModel<TrackingsViewModel>(factory = TrackingsViewModel.Factory)
+    val userTrackingsList by trackingsViewModel.trackings.collectAsState()
+    val userTrackings = userTrackingsList.firstOrNull()
+
+    val characteristicsViewModel = viewModel<CharacteristicsViewModel>(factory = CharacteristicsViewModel.Factory)
+    val userCharacteristicsList by characteristicsViewModel.characteristics.collectAsState()
+    val userCharacteristics = userCharacteristicsList.firstOrNull()
+
     // drawerState is used to handle the opening and closing of the menu, scope is for the opening and closing animation, whenever the value
     // of currentScreen changes, Compose automatically reruns every line in this code that has currentScreen in it. Because this is the
     // central screen, this is where the main focus manager goes
@@ -184,9 +201,9 @@ fun DrawerMenu() {
             ) {
                 when (currentScreen) {
                     "Home" -> HomeScreen()
-                    "Water" -> Text("This is the Water Intake screen")
-                    "Calories" -> Text("This is the Calories Intake screen")
-                    "Push-ups" -> Text("This is the Push-ups screen")
+                    "Water" -> CategoriesScreen(R.drawable.water, Color(0xFF2196F3), userTrackings?.waterProgress ?: 0, calculateWaterGoal(userCharacteristics), "mL")
+                    "Calories" -> CategoriesScreen(R.drawable.calories, Color(0xFF8B4513), userTrackings?.caloriesProgress ?: 0, calculateCaloriesGoal(userCharacteristics), "kcal")
+                    "Push-ups" -> CategoriesScreen(R.drawable.push_ups, Color.Black, userTrackings?.pushUpsProgress ?: 0, calculatePushUpsGoal(userCharacteristics), "reps")
                     "Steps" -> Text("This is the Steps screen")
                     "Profile" -> ProfileScreen()
                     "Leaderboards" -> Text("This is the Leaderboards screen")

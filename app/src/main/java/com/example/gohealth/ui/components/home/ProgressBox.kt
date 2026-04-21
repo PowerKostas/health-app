@@ -47,7 +47,7 @@ fun ProgressBox(iconId: Int, category: String, progressBarColour: Color, percent
                 style = MaterialTheme.typography.labelLarge
             )
 
-            ProgressBar(8.dp, progressBarColour, percentageToGoal)
+            ProgressBar(12.dp, progressBarColour, percentageToGoal)
 
             Text(
                 text = "${"%.1f".format(percentageToGoal * 100)}%", // Percentage, out of 100, rounded to 1 decimal place

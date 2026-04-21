@@ -20,10 +20,10 @@ fun ProgressBar(height: Dp, colour: Color, percentage: Float) {
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
-            .clip(RoundedCornerShape(4.dp)),
+            .clip(RoundedCornerShape(12.dp)),
 
         color = colour,
-        trackColor = Color.White,
+        trackColor = colour.copy(alpha = 0.2f),
         strokeCap = StrokeCap.Butt,
         gapSize = 0.dp,
         drawStopIndicator = {}
