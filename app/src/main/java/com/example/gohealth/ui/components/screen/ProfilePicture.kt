@@ -1,4 +1,4 @@
-package com.example.gohealth.ui.components.profile
+package com.example.gohealth.ui.components.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -62,7 +62,7 @@ fun ProfilePicture(
     // selected anything
     val profilePicture = when (profilePictureString) {
         null -> null
-        else -> avatarMap[profilePictureString] ?: R.drawable.lion
+        else -> avatarMap[profilePictureString] ?: R.drawable.dinosaur
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

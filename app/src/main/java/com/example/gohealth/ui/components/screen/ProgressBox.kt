@@ -1,4 +1,4 @@
-package com.example.gohealth.ui.components.home
+package com.example.gohealth.ui.components.screen
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement

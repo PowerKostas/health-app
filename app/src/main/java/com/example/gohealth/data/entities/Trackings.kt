@@ -17,10 +17,11 @@ import androidx.room.PrimaryKey
     ]
 )
 
+// Every column will hold a list of all the additions of the user, breaks 1NF but ok
 data class Trackings(
     @PrimaryKey val userId: Int,
-    @ColumnInfo(name = "water_progress") val waterProgress: Int?,
-    @ColumnInfo(name = "calories_progress") val caloriesProgress: Int?,
-    @ColumnInfo(name = "push_ups_progress") val pushUpsProgress: Int?,
-    @ColumnInfo(name = "steps_progress") val stepsProgress: Int?
+    @ColumnInfo(name = "water_progress") val waterProgress: List<Int?>,
+    @ColumnInfo(name = "calories_progress") val caloriesProgress: List<Int?>,
+    @ColumnInfo(name = "push_ups_progress") val pushUpsProgress: List<Int?>,
+    @ColumnInfo(name = "steps_progress") val stepsProgress: List<Int?>
 )

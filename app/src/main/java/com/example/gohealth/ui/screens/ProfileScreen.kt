@@ -29,7 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gohealth.ui.components.general.DropdownMenu
 import com.example.gohealth.ui.components.general.NumberTextField
 import com.example.gohealth.ui.components.general.RadioButtonGroup
-import com.example.gohealth.ui.components.profile.ProfilePicture
+import com.example.gohealth.ui.components.screen.ProfilePicture
 import com.example.gohealth.ui.viewModels.CharacteristicsViewModel
 import com.example.gohealth.ui.viewModels.SettingsViewModel
 
@@ -87,9 +87,9 @@ fun ProfileScreen() {
             // the UI instantly, creates a copy of the user and only updates the profile picture String in the local database
             newProfilePictureString ->
                 profilePictureString = newProfilePictureString
-                userSettings.let { user ->
+                userSettings.let { settings ->
                     settingsViewModel.updateUserSettings(
-                        user.copy(profilePictureString = newProfilePictureString)
+                        settings.copy(profilePictureString = newProfilePictureString)
                     )
                 }
             }
@@ -127,8 +127,9 @@ fun ProfileScreen() {
                         onValueChange = { newValue ->
                             username = newValue
 
-                            val updatedUser = userSettings.copy(username = newValue)
-                            settingsViewModel.updateUserSettings(updatedUser)
+                            settingsViewModel.updateUserSettings(
+                                userSettings.copy(username = newValue)
+                            )
                         }
                     )
 
@@ -137,9 +138,9 @@ fun ProfileScreen() {
                         gender
                     ) { newValue ->
                         gender = newValue
-                        userCharacteristics.let { user ->
+                        userCharacteristics.let { characteristics ->
                             characteristicsViewModel.updateUserCharacteristics(
-                                user.copy(gender = newValue)
+                                characteristics.copy(gender = newValue)
                             )
                         }
                     }
@@ -150,9 +151,9 @@ fun ProfileScreen() {
                         age
                     ) { newValue ->
                         age = newValue
-                        userCharacteristics.let { user ->
+                        userCharacteristics.let { characteristics ->
                             characteristicsViewModel.updateUserCharacteristics(
-                                user.copy(age = newValue.toFloatOrNull())
+                                characteristics.copy(age = newValue.toFloatOrNull())
                             )
                         }
                     }
@@ -163,9 +164,9 @@ fun ProfileScreen() {
                         height
                     ) { newValue ->
                         height = newValue
-                        userCharacteristics.let { user ->
+                        userCharacteristics.let { characteristics ->
                             characteristicsViewModel.updateUserCharacteristics(
-                                user.copy(height = newValue.toFloatOrNull())
+                                characteristics.copy(height = newValue.toFloatOrNull())
                             )
                         }
                     }
@@ -176,9 +177,9 @@ fun ProfileScreen() {
                         weight
                     ) { newValue ->
                         weight = newValue
-                        userCharacteristics.let { user ->
+                        userCharacteristics.let { characteristics ->
                             characteristicsViewModel.updateUserCharacteristics(
-                                user.copy(weight = newValue.toFloatOrNull())
+                                characteristics.copy(weight = newValue.toFloatOrNull())
                             )
                         }
                     }
@@ -188,9 +189,9 @@ fun ProfileScreen() {
                         activityLevel
                     ) { newValue ->
                         activityLevel = newValue
-                        userCharacteristics.let { user ->
+                        userCharacteristics.let { characteristics ->
                             characteristicsViewModel.updateUserCharacteristics(
-                                user.copy(activityLevel = newValue)
+                                characteristics.copy(activityLevel = newValue)
                             )
                         }
                     }
@@ -200,9 +201,9 @@ fun ProfileScreen() {
                         weightGoal
                     ) { newValue ->
                         weightGoal = newValue
-                        userCharacteristics.let { user ->
+                        userCharacteristics.let { characteristics ->
                             characteristicsViewModel.updateUserCharacteristics(
-                                user.copy(weightGoal = newValue)
+                                characteristics.copy(weightGoal = newValue)
                             )
                         }
                     }
@@ -230,9 +231,9 @@ fun ProfileScreen() {
                     )
             ) {
                 RadioButtonGroup(listOf("Light", "Dark", "Dynamic"), userSettings.appearance) { newAppearance ->
-                    userSettings.let { user ->
+                    userSettings.let { settings ->
                         settingsViewModel.updateUserSettings(
-                            user.copy(appearance = newAppearance)
+                            settings.copy(appearance = newAppearance)
                         )
                     }
                 }

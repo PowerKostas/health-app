@@ -37,10 +37,10 @@ class TrackingsViewModel(private val trackingsDao: TrackingsDao) : ViewModel() {
             if (trackingsDao.getAll().first().isEmpty()) {
                 val defaultTrackings = Trackings(
                     userId = userId,
-                    waterProgress = null,
-                    caloriesProgress = null,
-                    pushUpsProgress = null,
-                    stepsProgress = null
+                    waterProgress = emptyList(),
+                    caloriesProgress = emptyList(),
+                    pushUpsProgress = emptyList(),
+                    stepsProgress = emptyList()
                 )
 
                 trackingsDao.insert(defaultTrackings)

@@ -13,17 +13,62 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.gohealth.ui.components.categories.AddButton
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gohealth.ui.components.general.ActionButton
 import com.example.gohealth.ui.components.general.ProgressBar
+import com.example.gohealth.ui.components.screen.CustomAlertDialog
+import com.example.gohealth.ui.viewModels.TrackingsViewModel
 
 // Water, calories and push-ups screen
 @Composable
-fun CategoriesScreen(iconId: Int, progressBarColour: Color, categoryProgress: Int, categoryGoal: Int, metric: String) {
+fun CategoriesScreen(categoryName: String, iconId: Int, progressBarColour: Color, categoryProgress: Int, categoryGoal: Int, metric: String) {
+    val trackingsViewModel: TrackingsViewModel = viewModel(factory = TrackingsViewModel.Factory)
+    val userTrackingsList by trackingsViewModel.trackings.collectAsState()
+    val userTrackings = userTrackingsList.firstOrNull()
+
+    var showCustomAlertDialog by remember { mutableStateOf(false) }
+
+    // Handles which category to update
+    val handleAddAmount: (Int) -> Unit = { amount ->
+        userTrackings?.let { trackings ->
+            val updatedTrackings = when (categoryName) {
+                "Water" -> trackings.copy(waterProgress = trackings.waterProgress + amount)
+                "Calories" -> trackings.copy(caloriesProgress = trackings.caloriesProgress + amount)
+                "Push-ups" -> trackings.copy(pushUpsProgress = trackings.pushUpsProgress + amount)
+                else -> throw IllegalStateException("Invalid Input")
+            }
+
+            trackingsViewModel.updateUserTrackings(updatedTrackings)
+        }
+    }
+
+    val handleDeletePrevious: () -> Unit = {
+        userTrackings?.let { trackings ->
+            val updatedUser = when (categoryName) {
+                "Water" -> trackings.copy(waterProgress = trackings.waterProgress.dropLast(1))
+                "Calories" -> trackings.copy(
+                    caloriesProgress = trackings.caloriesProgress.dropLast(
+                        1
+                    )
+                )
+
+                "Push-ups" -> trackings.copy(pushUpsProgress = trackings.pushUpsProgress.dropLast(1))
+                else -> throw IllegalStateException("Invalid Input")
+            }
+            trackingsViewModel.updateUserTrackings(updatedUser)
+        }
+    }
+
     HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
     Column(
@@ -61,16 +106,30 @@ fun CategoriesScreen(iconId: Int, progressBarColour: Color, categoryProgress: In
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 val modifier = Modifier.weight(1f)
-                AddButton(modifier, progressBarColour, "1")
-                AddButton(modifier, progressBarColour, "10")
-                AddButton(modifier, progressBarColour, "100")
+                ActionButton(modifier, progressBarColour, "+1") { handleAddAmount(1) }
+                ActionButton(modifier, progressBarColour, "+10") { handleAddAmount(10) }
+                ActionButton(modifier, progressBarColour, "+100") { handleAddAmount(100) }
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 val modifier = Modifier.weight(1f)
-                AddButton(modifier, progressBarColour, "Custom")
-                AddButton(modifier, Color(0xFFE53935), "Delete Previous")
+                ActionButton(modifier, progressBarColour, "Custom") { showCustomAlertDialog = true }
+                ActionButton(
+                    modifier,
+                    Color(0xFFE53935),
+                    "Delete Previous"
+                ) { handleDeletePrevious() }
             }
         }
+    }
+
+    if (showCustomAlertDialog) {
+        CustomAlertDialog(
+            metric = metric,
+            onDismiss = { showCustomAlertDialog = false },
+            onConfirm = { amount ->
+                handleAddAmount(amount)
+            }
+        )
     }
 }

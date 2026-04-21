@@ -1,4 +1,4 @@
-package com.example.gohealth.ui.components.categories
+package com.example.gohealth.ui.components.general
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -9,10 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+// Custom button to do any action
 @Composable
-fun AddButton(modifier: Modifier, progressBarColour: Color, text: String) {
+fun ActionButton(modifier: Modifier, progressBarColour: Color, text: String, action: () -> Unit) {
     Button(
-        onClick = { /* TODO: Add action here */ },
+        onClick = action,
 
         colors = ButtonDefaults.buttonColors(
             containerColor = progressBarColour,

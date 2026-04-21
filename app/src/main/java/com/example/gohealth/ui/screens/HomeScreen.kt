@@ -21,7 +21,7 @@ import com.example.gohealth.helpers.calculateCaloriesGoal
 import com.example.gohealth.helpers.calculatePushUpsGoal
 import com.example.gohealth.helpers.calculateStepsGoal
 import com.example.gohealth.helpers.calculateWaterGoal
-import com.example.gohealth.ui.components.home.ProgressBox
+import com.example.gohealth.ui.components.screen.ProgressBox
 import com.example.gohealth.ui.viewModels.CharacteristicsViewModel
 import com.example.gohealth.ui.viewModels.TrackingsViewModel
 
@@ -32,10 +32,10 @@ fun HomeScreen() {
     val userTrackingsList by trackingsViewModel.trackings.collectAsState()
     val userTrackings = userTrackingsList.firstOrNull()
 
-    val waterProgress = userTrackings?.waterProgress ?: 0
-    val caloriesProgress = userTrackings?.caloriesProgress ?: 0
-    val pushUpsProgress = userTrackings?.pushUpsProgress ?: 0
-    val stepsProgress = userTrackings?.stepsProgress ?: 0
+    val waterProgressSum = userTrackings?.waterProgress?.filterNotNull()?.sum() ?: 0
+    val caloriesProgressSum = userTrackings?.caloriesProgress?.filterNotNull()?.sum() ?: 0
+    val pushUpsProgressSum = userTrackings?.pushUpsProgress?.filterNotNull()?.sum() ?: 0
+    val stepsProgressSum = userTrackings?.stepsProgress?.filterNotNull()?.sum() ?: 0
 
     val characteristicsViewModel = viewModel<CharacteristicsViewModel>(factory = CharacteristicsViewModel.Factory)
     val userCharacteristicsList by characteristicsViewModel.characteristics.collectAsState()
@@ -65,10 +65,10 @@ fun HomeScreen() {
                 )
             }
 
-            ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgress.toFloat() / waterGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgress.toFloat() / caloriesGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgress.toFloat() / pushUpsGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgress.toFloat() / stepsGoal).coerceAtMost(1.0f))
+            ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgressSum.toFloat() / waterGoal).coerceAtMost(1.0f))
+            ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgressSum.toFloat() / caloriesGoal).coerceAtMost(1.0f))
+            ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgressSum.toFloat() / pushUpsGoal).coerceAtMost(1.0f))
+            ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgressSum.toFloat() / stepsGoal).coerceAtMost(1.0f))
         }
     }
 }

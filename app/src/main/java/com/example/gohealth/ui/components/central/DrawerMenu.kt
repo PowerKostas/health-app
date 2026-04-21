@@ -41,10 +41,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gohealth.R
 import com.example.gohealth.helpers.calculateCaloriesGoal
 import com.example.gohealth.helpers.calculatePushUpsGoal
+import com.example.gohealth.helpers.calculateStepsGoal
 import com.example.gohealth.helpers.calculateWaterGoal
 import com.example.gohealth.ui.screens.CategoriesScreen
 import com.example.gohealth.ui.screens.HomeScreen
 import com.example.gohealth.ui.screens.ProfileScreen
+import com.example.gohealth.ui.screens.StepsScreen
 import com.example.gohealth.ui.viewModels.CharacteristicsViewModel
 import com.example.gohealth.ui.viewModels.TrackingsViewModel
 import kotlinx.coroutines.launch
@@ -54,7 +56,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerMenu() {
-    // Initiates database
+    // Initiates the database
     val trackingsViewModel = viewModel<TrackingsViewModel>(factory = TrackingsViewModel.Factory)
     val userTrackingsList by trackingsViewModel.trackings.collectAsState()
     val userTrackings = userTrackingsList.firstOrNull()
@@ -201,10 +203,10 @@ fun DrawerMenu() {
             ) {
                 when (currentScreen) {
                     "Home" -> HomeScreen()
-                    "Water" -> CategoriesScreen(R.drawable.water, Color(0xFF2196F3), userTrackings?.waterProgress ?: 0, calculateWaterGoal(userCharacteristics), "mL")
-                    "Calories" -> CategoriesScreen(R.drawable.calories, Color(0xFF8B4513), userTrackings?.caloriesProgress ?: 0, calculateCaloriesGoal(userCharacteristics), "kcal")
-                    "Push-ups" -> CategoriesScreen(R.drawable.push_ups, Color.Black, userTrackings?.pushUpsProgress ?: 0, calculatePushUpsGoal(userCharacteristics), "reps")
-                    "Steps" -> Text("This is the Steps screen")
+                    "Water" -> CategoriesScreen("Water", R.drawable.water, Color(0xFF2196F3), userTrackings?.waterProgress?.filterNotNull()?.sum() ?: 0, calculateWaterGoal(userCharacteristics), "mL")
+                    "Calories" -> CategoriesScreen("Calories", R.drawable.calories, Color(0xFF8B4513), userTrackings?.caloriesProgress?.filterNotNull()?.sum() ?: 0, calculateCaloriesGoal(userCharacteristics), "kcal")
+                    "Push-ups" -> CategoriesScreen("Push-ups", R.drawable.push_ups, Color.Black, userTrackings?.pushUpsProgress?.filterNotNull()?.sum() ?: 0, calculatePushUpsGoal(userCharacteristics), "reps")
+                    "Steps" -> StepsScreen(userTrackings?.stepsProgress?.filterNotNull()?.sum() ?: 0, calculateStepsGoal(userCharacteristics))
                     "Profile" -> ProfileScreen()
                     "Leaderboards" -> Text("This is the Leaderboards screen")
                 }

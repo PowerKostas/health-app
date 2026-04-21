@@ -17,7 +17,7 @@ fun NumberTextField(
 ) {
     OutlinedTextField(
         value = selectedValue,
-        label = { Text(text) },
+        label = { Text(text = text) },
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         onValueChange = { newValue ->
