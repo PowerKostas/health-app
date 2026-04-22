@@ -5,15 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.gohealth"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    namespace = "com.kostas.gohealth"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.gohealth"
+        applicationId = "com.kostas.gohealth"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -57,6 +53,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

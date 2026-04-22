@@ -1,0 +1,243 @@
+package com.kostas.gohealth.ui.screens
+
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kostas.gohealth.ui.components.general.DropdownMenu
+import com.kostas.gohealth.ui.components.general.NumberTextField
+import com.kostas.gohealth.ui.components.general.RadioButtonGroup
+import com.kostas.gohealth.ui.components.screen.ProfilePicture
+import com.kostas.gohealth.ui.viewModels.CharacteristicsViewModel
+import com.kostas.gohealth.ui.viewModels.SettingsViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileScreen() {
+    val characteristicsViewModel: CharacteristicsViewModel = viewModel(factory = CharacteristicsViewModel.Factory)
+    val userCharacteristicsList by characteristicsViewModel.characteristics.collectAsState()
+    val userCharacteristics = userCharacteristicsList.firstOrNull()
+
+    val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+    val userSettingsList by settingsViewModel.settings.collectAsState()
+    val userSettings = userSettingsList.firstOrNull()
+
+    var profilePictureString by remember { mutableStateOf<String?>(null) }
+    var username by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var height by remember { mutableStateOf("") }
+    var weight by remember { mutableStateOf("") }
+    var activityLevel by remember { mutableStateOf("") }
+    var weightGoal by remember { mutableStateOf("") }
+
+    if (userCharacteristics != null && userSettings != null) { // Waits for the database to load
+        // Initializes the variables with the values from the database
+        profilePictureString = userSettings.profilePictureString
+        username = userSettings.username
+        gender = userCharacteristics.gender
+        activityLevel = userCharacteristics.activityLevel
+        weightGoal = userCharacteristics.weightGoal
+
+        val formatNumber = { num: Float? ->
+            when {
+                num == null -> "" // If DB is null, show blank
+                num % 1 == 0f -> num.toInt().toString() // If whole number, chop off .0
+                else -> num.toString() // If decimal, leave it alone
+            }
+        }
+
+        age = formatNumber(userCharacteristics.age)
+        height = formatNumber(userCharacteristics.height)
+        weight = formatNumber(userCharacteristics.weight)
+
+        // Draws the screen
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            ProfilePicture(
+                profilePictureString
+            ) {
+            // Function that triggers when a new profile picture is tapped, it makes sure that a user is actually loaded on the screen, updates
+            // the UI instantly, creates a copy of the user and only updates the profile picture String in the local database
+            newProfilePictureString ->
+                profilePictureString = newProfilePictureString
+                userSettings.let { settings ->
+                    settingsViewModel.updateUserSettings(
+                        settings.copy(profilePictureString = newProfilePictureString)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Personal Details",
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp)
+            )
+
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, bottom = 4.dp, top = 4.dp)
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(space = 24.dp),
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    OutlinedTextField(
+                        value = username,
+                        label = { Text("Username") },
+                        modifier = Modifier.fillMaxWidth(),
+
+                        // Updates the local database, every time the text changes
+                        onValueChange = { newValue ->
+                            username = newValue
+
+                            settingsViewModel.updateUserSettings(
+                                userSettings.copy(username = newValue)
+                            )
+                        }
+                    )
+
+                    DropdownMenu(
+                        "Gender", listOf("Male", "Female"),
+                        gender
+                    ) { newValue ->
+                        gender = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(gender = newValue)
+                            )
+                        }
+                    }
+
+                    NumberTextField(
+                        "Age",
+                        150f,
+                        age
+                    ) { newValue ->
+                        age = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(age = newValue.toFloatOrNull())
+                            )
+                        }
+                    }
+
+                    NumberTextField(
+                        "Height (cm)",
+                        300f,
+                        height
+                    ) { newValue ->
+                        height = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(height = newValue.toFloatOrNull())
+                            )
+                        }
+                    }
+
+                    NumberTextField(
+                        "Weight (kg)",
+                        700f,
+                        weight
+                    ) { newValue ->
+                        weight = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(weight = newValue.toFloatOrNull())
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        "Activity Level", listOf("Sedentary", "Moderate", "High"),
+                        activityLevel
+                    ) { newValue ->
+                        activityLevel = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(activityLevel = newValue)
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        "Weight Goal", listOf("Lose", "Maintain", "Gain"),
+                        weightGoal
+                    ) { newValue ->
+                        weightGoal = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(weightGoal = newValue)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Appearance",
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp)
+            )
+
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, bottom = 4.dp, top = 4.dp)
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+            ) {
+                RadioButtonGroup(listOf("Light", "Dark", "Dynamic"), userSettings.appearance) { newAppearance ->
+                    userSettings.let { settings ->
+                        settingsViewModel.updateUserSettings(
+                            settings.copy(appearance = newAppearance)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
