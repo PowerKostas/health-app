@@ -8,7 +8,6 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.kostas.gohealth.data.DatabaseProvider
 import com.kostas.gohealth.data.daos.SettingsDao
 import com.kostas.gohealth.data.daos.TrackingsDao
-import com.kostas.gohealth.data.entities.Settings
 import com.kostas.gohealth.data.entities.Trackings
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -60,18 +59,40 @@ class TrackingsViewModel(private val trackingsDao: TrackingsDao, private val set
 
     // Resets the tracking table if today is after the last reset date and a specific time has passed, the second part is just for
     // testing, since I just want it to reset at midnight
-    fun resetUserTrackings(trackings: Trackings, settings: Settings) {
-        if (LocalDate.now() > settings.lastResetDate && LocalTime.now() >= LocalTime.of(0, 0)) {
-            viewModelScope.launch {
-                val resetTrackings = trackings.copy(
-                    waterProgress = emptyList(),
-                    caloriesProgress = emptyList(),
-                    pushUpsProgress = emptyList(),
-                    stepsProgress = emptyList()
-                )
+    fun resetUserTrackings() {
+        viewModelScope.launch {
+            val userTrackings = trackings.value.firstOrNull()
+            val userSettings = settingsDao.getAll().first().firstOrNull()
 
-                trackingsDao.update(resetTrackings)
-                settingsDao.update(settings.copy(lastResetDate = LocalDate.now()))
+            if (userTrackings != null && userSettings != null) {
+                if (LocalDate.now() > userSettings.lastResetDate && LocalTime.now() >= LocalTime.of(0, 0)) {
+                    val resetTrackings = userTrackings.copy(
+                        waterProgress = emptyList(),
+                        caloriesProgress = emptyList(),
+                        pushUpsProgress = emptyList(),
+                        stepsProgress = emptyList()
+                    )
+
+                    trackingsDao.update(resetTrackings)
+                    settingsDao.update(userSettings.copy(lastResetDate = LocalDate.now()))
+                }
+            }
+        }
+    }
+
+    // Every 10 new steps, it updates stepsProgress and lastSavedSteps. The step counter in Android counts steps since the last reset, this
+    // is why we subtract the lastSavedSteps from the totalSteps to get the new steps. New steps go into stepsProgress, stepsProgress gets
+    // reset every midnight and lastSavedSteps gets the value of totalSteps.
+    fun updateStepsProgress(totalSteps: Int) {
+        viewModelScope.launch {
+            val userTrackings = trackings.value.firstOrNull()
+            val userSettings = settingsDao.getAll().first().firstOrNull()
+
+            if (userTrackings != null && userSettings != null) {
+                if (totalSteps - userSettings.lastSavedSteps >= 10) {
+                    updateUserTrackings(userTrackings.copy(stepsProgress = userTrackings.stepsProgress + (totalSteps - userSettings.lastSavedSteps)))
+                    settingsDao.update(userSettings.copy(lastSavedSteps = totalSteps))
+                }
             }
         }
     }

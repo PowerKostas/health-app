@@ -11,12 +11,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.kostas.gohealth.services.DailyStepTracker
 import com.kostas.gohealth.services.NotificationWorker
 import com.kostas.gohealth.ui.components.central.DrawerMenu
 import com.kostas.gohealth.ui.themes.GoHealthTheme
@@ -30,6 +32,8 @@ import java.util.concurrent.TimeUnit
 // This is where the program starts, sets basic settings and runs the custom drawer menu function, which is the center of the app
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
+    private lateinit var dailyStepTracker: DailyStepTracker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,6 +54,15 @@ class MainActivity : ComponentActivity() {
         }
 
         schedulePeriodicNotification()
+
+        // Initialize dailyStepTracker
+        val trackingsViewModel = ViewModelProvider(this, TrackingsViewModel.Factory) [TrackingsViewModel::class.java]
+        dailyStepTracker = DailyStepTracker(
+            context = this,
+            updateStepsProgress = { newSteps ->
+                trackingsViewModel.updateStepsProgress(newSteps)
+            }
+        )
 
         setContent {
             val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
@@ -79,7 +92,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(userTrackings != null && userSettings != null) {
                 if (userTrackings != null && userSettings != null) {
                     while (isActive) {
-                        trackingsViewModel.resetUserTrackings(userTrackings, userSettings)
+                        trackingsViewModel.resetUserTrackings()
                         delay(60000)
                     }
                 }
@@ -100,6 +113,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    // Start tracking when the app is active
+    override fun onResume() {
+        super.onResume()
+        dailyStepTracker.startTracking()
+    }
+
+    // Stop tracking when the app is on pause
+    override fun onPause() {
+        super.onPause()
+        dailyStepTracker.stopTracking()
     }
 
     // Sends the already made notification every 3 hours, doesn't need network

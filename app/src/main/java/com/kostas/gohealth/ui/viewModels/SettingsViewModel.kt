@@ -40,7 +40,8 @@ class SettingsViewModel(private val settingsDao: SettingsDao) : ViewModel() {
                     profilePictureString = "",
                     username = "",
                     appearance = "Light",
-                    lastResetDate = LocalDate.MIN
+                    lastResetDate = LocalDate.MIN,
+                    lastSavedSteps = 0
                 )
 
                 settingsDao.insert(defaultSettings)

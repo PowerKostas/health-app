@@ -11,5 +11,6 @@ data class Settings(
     @ColumnInfo(name = "profile_picture_string") val profilePictureString: String,
     @ColumnInfo(name = "username") val username: String,
     @ColumnInfo(name = "appearance") val appearance: String,
-    @ColumnInfo(name = "last_reset_date") val lastResetDate: LocalDate
+    @ColumnInfo(name = "last_reset_date") val lastResetDate: LocalDate,
+    @ColumnInfo(name = "last_saved_steps") val lastSavedSteps: Int
 )
