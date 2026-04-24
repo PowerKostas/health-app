@@ -1,0 +1,114 @@
+package com.kostas.gohealth.services
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.os.IBinder
+import androidx.core.app.NotificationCompat
+import com.kostas.gohealth.MainActivity
+import com.kostas.gohealth.R
+import com.kostas.gohealth.data.DatabaseProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+
+class StepTrackerService : Service(), SensorEventListener {
+    // Initializations
+    private lateinit var sensorManager: SensorManager
+    private var stepSensor: Sensor? = null
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    override fun onCreate() {
+        super.onCreate()
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sensorManager.unregisterListener(this)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == "STOP_SERVICE") {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        createNotificationChannel()
+        val notification = createNotification()
+
+        startForeground(1, notification)
+
+        stepSensor?.let {
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+
+        return START_STICKY
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
+    override fun onBind(intent: Intent?): IBinder? { return null }
+
+
+    // Gets triggered on every new step
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_STEP_COUNTER) {
+            val totalSteps = event.values[0].toInt()
+
+            // Every 10 new steps, it updates stepsProgress and lastSavedSteps. The step counter in Android counts steps since the last
+            // reset, this is why we subtract the lastSavedSteps from the totalSteps to get the new steps. New steps go into
+            // stepsProgress, stepsProgress gets reset every midnight and lastSavedSteps gets the value of totalSteps.
+            serviceScope.launch {
+                val database = DatabaseProvider.getDatabase(applicationContext)
+
+                val trackingsDao = database.trackingsDao()
+                val userTrackings = trackingsDao.getAll().first().firstOrNull()
+
+                val settingsDao = database.settingsDao()
+                val userSettings = settingsDao.getAll().first().firstOrNull()
+
+                if (userTrackings != null && userSettings != null) {
+                    if (totalSteps - userSettings.lastSavedSteps >= 10) {
+                        trackingsDao.update(userTrackings.copy(stepsProgress = userTrackings.stepsProgress + totalSteps - userSettings.lastSavedSteps))
+                        settingsDao.update(userSettings.copy(lastSavedSteps = totalSteps))
+                    }
+                }
+            }
+        }
+    }
+
+    // Builds the foreground notification, opens the app when tapped, kills the foreground service when swiped
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel("step_tracker_channel", "Step Tracker", NotificationManager.IMPORTANCE_LOW)
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(channel)
+    }
+
+    private fun createNotification(): Notification {
+        val openAppIntent = Intent(this, MainActivity::class.java)
+        val openAppPendingIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        val stopIntent = Intent(this, StepTrackerService::class.java).apply{ action = "STOP_SERVICE" }
+        val stopPendingIntent = PendingIntent.getService(this, 1, stopIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        return NotificationCompat.Builder(this, "step_tracker_channel")
+            .setContentTitle("Step tracking active")
+            .setContentText("Swipe to turn off step tracking")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentIntent(openAppPendingIntent)
+            .setDeleteIntent(stopPendingIntent)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .build()
+    }
+}

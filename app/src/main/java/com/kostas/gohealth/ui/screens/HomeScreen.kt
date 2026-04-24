@@ -32,43 +32,46 @@ fun HomeScreen() {
     val userTrackingsList by trackingsViewModel.trackings.collectAsState()
     val userTrackings = userTrackingsList.firstOrNull()
 
-    val waterProgressSum = userTrackings?.waterProgress?.filterNotNull()?.sum() ?: 0
-    val caloriesProgressSum = userTrackings?.caloriesProgress?.filterNotNull()?.sum() ?: 0
-    val pushUpsProgressSum = userTrackings?.pushUpsProgress?.filterNotNull()?.sum() ?: 0
-    val stepsProgressSum = userTrackings?.stepsProgress?.filterNotNull()?.sum() ?: 0
-
     val characteristicsViewModel = viewModel<CharacteristicsViewModel>(factory = CharacteristicsViewModel.Factory)
     val userCharacteristicsList by characteristicsViewModel.characteristics.collectAsState()
     val userCharacteristics = userCharacteristicsList.firstOrNull()
+
+    // Waits for the database to load
+    if (userTrackings == null || userCharacteristics == null) {
+        return
+    }
+
+    val waterProgressSum = userTrackings.waterProgress.sum()
+    val caloriesProgressSum = userTrackings.caloriesProgress.sum()
+    val pushUpsProgressSum = userTrackings.pushUpsProgress.sum()
+    val stepsProgressSum = userTrackings.stepsProgress
 
     val waterGoal = calculateWaterGoal(userCharacteristics)
     val caloriesGoal = calculateCaloriesGoal(userCharacteristics)
     val pushUpsGoal = calculatePushUpsGoal(userCharacteristics)
     val stepsGoal = calculateStepsGoal(userCharacteristics)
 
-    if (userTrackings != null || userCharacteristics != null) { // Waits for the database to load
-        // Draws the screen
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
+    // Draws the screen
+    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(48.dp),
-            modifier = Modifier
-                .padding(16.dp, 32.dp, 16.dp, 32.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // Warning text, if the user hasn't filled all the characteristics in his profile
-            if (userCharacteristics == null || userCharacteristics.gender == "" || userCharacteristics.age == null || userCharacteristics.height == null || userCharacteristics.weight == null || userCharacteristics.activityLevel == "" || userCharacteristics.weightGoal == "") {
-                Text(
-                    text = "Complete your profile for more personalized results.",
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgressSum.toFloat() / waterGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgressSum.toFloat() / caloriesGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgressSum.toFloat() / pushUpsGoal).coerceAtMost(1.0f))
-            ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgressSum.toFloat() / stepsGoal).coerceAtMost(1.0f))
+    Column(
+        verticalArrangement = Arrangement.spacedBy(48.dp),
+        modifier = Modifier
+            .padding(16.dp, 32.dp, 16.dp, 32.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Warning text, if the user hasn't filled all the characteristics in his profile
+        if (userCharacteristics.gender == null || userCharacteristics.age == null || userCharacteristics.height == null || userCharacteristics.weight == null || userCharacteristics.activityLevel == null || userCharacteristics.weightGoal == null) {
+            Text(
+                text = "Complete your profile for more personalized results.",
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
+            )
         }
+
+        ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgressSum.toFloat() / waterGoal).coerceAtMost(1.0f))
+        ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgressSum.toFloat() / caloriesGoal).coerceAtMost(1.0f))
+        ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgressSum.toFloat() / pushUpsGoal).coerceAtMost(1.0f))
+        ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgressSum.toFloat() / stepsGoal).coerceAtMost(1.0f))
     }
 }

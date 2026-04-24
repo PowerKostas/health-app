@@ -7,15 +7,15 @@ import java.time.LocalDate
 class Converters {
     // Converts the list to a comma-separated string: "1,2,3"
     @TypeConverter
-    fun fromIntList(list: List<Int?>?): String? {
+    fun fromIntList(list: List<Int>?): String? {
         return list?.joinToString(", ")
     }
 
     // Converts the comma-separated string back to a list of Ints
     @TypeConverter
-    fun toIntList(data: String?): List<Int?> {
+    fun toIntList(data: String?): List<Int> {
         if (data.isNullOrBlank()) return emptyList()
-        return data.split(", ").mapNotNull { it.toIntOrNull() }
+        return data.split(", ").map { it.toInt() }
     }
 
     // Converts the LocalDate to a Long

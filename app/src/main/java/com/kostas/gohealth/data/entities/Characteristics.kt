@@ -19,10 +19,10 @@ import androidx.room.PrimaryKey
 )
 data class Characteristics(
     @PrimaryKey val userId: Int,
-    @ColumnInfo(name = "gender") val gender: String,
+    @ColumnInfo(name = "gender") val gender: String?,
     @ColumnInfo(name = "age") val age: Float?,
     @ColumnInfo(name = "height") val height: Float?,
     @ColumnInfo(name = "weight") val weight: Float?,
-    @ColumnInfo(name = "activity_level") val activityLevel: String,
-    @ColumnInfo(name = "weight_goal") val weightGoal: String
+    @ColumnInfo(name = "activity_level") val activityLevel: String?,
+    @ColumnInfo(name = "weight_goal") val weightGoal: String?
 )

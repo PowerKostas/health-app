@@ -9,7 +9,7 @@ import java.time.LocalDate
 data class Settings(
     @PrimaryKey(autoGenerate = true) val userId: Int = 0,
     @ColumnInfo(name = "profile_picture_string") val profilePictureString: String,
-    @ColumnInfo(name = "username") val username: String,
+    @ColumnInfo(name = "username") val username: String?,
     @ColumnInfo(name = "appearance") val appearance: String,
     @ColumnInfo(name = "last_reset_date") val lastResetDate: LocalDate,
     @ColumnInfo(name = "last_saved_steps") val lastSavedSteps: Int

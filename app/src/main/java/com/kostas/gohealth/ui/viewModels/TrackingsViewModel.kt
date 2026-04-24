@@ -43,7 +43,7 @@ class TrackingsViewModel(private val trackingsDao: TrackingsDao, private val set
                     waterProgress = emptyList(),
                     caloriesProgress = emptyList(),
                     pushUpsProgress = emptyList(),
-                    stepsProgress = emptyList()
+                    stepsProgress = 0
                 )
 
                 trackingsDao.insert(defaultTrackings)
@@ -70,28 +70,11 @@ class TrackingsViewModel(private val trackingsDao: TrackingsDao, private val set
                         waterProgress = emptyList(),
                         caloriesProgress = emptyList(),
                         pushUpsProgress = emptyList(),
-                        stepsProgress = emptyList()
+                        stepsProgress = 0
                     )
 
                     trackingsDao.update(resetTrackings)
                     settingsDao.update(userSettings.copy(lastResetDate = LocalDate.now()))
-                }
-            }
-        }
-    }
-
-    // Every 10 new steps, it updates stepsProgress and lastSavedSteps. The step counter in Android counts steps since the last reset, this
-    // is why we subtract the lastSavedSteps from the totalSteps to get the new steps. New steps go into stepsProgress, stepsProgress gets
-    // reset every midnight and lastSavedSteps gets the value of totalSteps.
-    fun updateStepsProgress(totalSteps: Int) {
-        viewModelScope.launch {
-            val userTrackings = trackings.value.firstOrNull()
-            val userSettings = settingsDao.getAll().first().firstOrNull()
-
-            if (userTrackings != null && userSettings != null) {
-                if (totalSteps - userSettings.lastSavedSteps >= 10) {
-                    updateUserTrackings(userTrackings.copy(stepsProgress = userTrackings.stepsProgress + (totalSteps - userSettings.lastSavedSteps)))
-                    settingsDao.update(userSettings.copy(lastSavedSteps = totalSteps))
                 }
             }
         }

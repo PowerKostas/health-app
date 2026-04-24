@@ -42,12 +42,12 @@ class CharacteristicsViewModel(private val characteristicsDao: CharacteristicsDa
             if (characteristicsDao.getAll().first().isEmpty()) {
                 val defaultCharacteristics = Characteristics(
                     userId = userId,
-                    gender = "",
+                    gender = null,
                     age = null,
                     height = null,
                     weight = null,
-                    activityLevel = "",
-                    weightGoal = ""
+                    activityLevel = null,
+                    weightGoal = null
                 )
 
                 characteristicsDao.insert(defaultCharacteristics)

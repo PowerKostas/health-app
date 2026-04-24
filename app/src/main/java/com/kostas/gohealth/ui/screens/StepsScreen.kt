@@ -61,19 +61,18 @@ fun StepsScreen(categoryProgress: Int, categoryGoal: Int) {
             }
 
             else {
-                append("Currently not tracking steps. Physical activity permission is ")
+                append("Physical activity permissions are ")
 
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
                     append("disabled")
                 }
 
-                append(".")
+                append(". Step tracking paused.")
             }
         }
 
         Text(
             text = text,
-            style = MaterialTheme.typography.titleLarge,
             color = Color(0xFFE0AC69),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center

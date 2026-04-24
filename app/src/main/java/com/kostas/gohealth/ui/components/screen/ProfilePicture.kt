@@ -36,7 +36,7 @@ import com.kostas.gohealth.R
 // Adds a profile picture and a button below it that opens a menu to optionally select a new picture
 @Composable
 fun ProfilePicture(
-    profilePictureString: String?,
+    profilePictureString: String,
     onImageSelected: (String) -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -58,12 +58,8 @@ fun ProfilePicture(
         "sheep" to R.drawable.sheep
     )
 
-    // Gets the profile picture from the profile picture string, null if it hasn't loaded yet, defaults to the lion if the user hasn't
-    // selected anything
-    val profilePicture = when (profilePictureString) {
-        null -> null
-        else -> avatarMap[profilePictureString] ?: R.drawable.dinosaur
-    }
+    // Gets the profile picture from the profile picture string
+    val profilePicture = avatarMap[profilePictureString]
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AsyncImage(

@@ -203,10 +203,10 @@ fun DrawerMenu() {
             ) {
                 when (currentScreen) {
                     "Home" -> HomeScreen()
-                    "Water" -> CategoriesScreen("Water", R.drawable.water, Color(0xFF2196F3), userTrackings?.waterProgress?.filterNotNull()?.sum() ?: 0, calculateWaterGoal(userCharacteristics), "mL")
-                    "Calories" -> CategoriesScreen("Calories", R.drawable.calories, Color(0xFF8B4513), userTrackings?.caloriesProgress?.filterNotNull()?.sum() ?: 0, calculateCaloriesGoal(userCharacteristics), "kcal")
-                    "Push-ups" -> CategoriesScreen("Push-ups", R.drawable.push_ups, Color.Black, userTrackings?.pushUpsProgress?.filterNotNull()?.sum() ?: 0, calculatePushUpsGoal(userCharacteristics), "reps")
-                    "Steps" -> StepsScreen(userTrackings?.stepsProgress?.filterNotNull()?.sum() ?: 0, calculateStepsGoal(userCharacteristics))
+                    "Water" -> CategoriesScreen("Water", R.drawable.water, Color(0xFF2196F3), userTrackings?.waterProgress?.sum() ?: 0, calculateWaterGoal(userCharacteristics), "mL")
+                    "Calories" -> CategoriesScreen("Calories", R.drawable.calories, Color(0xFF8B4513), userTrackings?.caloriesProgress?.sum() ?: 0, calculateCaloriesGoal(userCharacteristics), "kcal")
+                    "Push-ups" -> CategoriesScreen("Push-ups", R.drawable.push_ups, Color.Black, userTrackings?.pushUpsProgress?.sum() ?: 0, calculatePushUpsGoal(userCharacteristics), "reps")
+                    "Steps" -> StepsScreen(userTrackings?.stepsProgress ?: 0, calculateStepsGoal(userCharacteristics))
                     "Profile" -> ProfileScreen()
                     "Leaderboards" -> Text("This is the Leaderboards screen")
                 }

@@ -28,25 +28,22 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Coroutine
         return Result.success()
     }
 
-    // Builds high importance stackable notifications
+    // Builds high importance stackable notifications, opens the app when tapped
     private fun sendNotification() {
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val channel = NotificationChannel(CHANNEL_ID, "Periodic Notifications", NotificationManager.IMPORTANCE_HIGH)
         notificationManager.createNotificationChannel(channel)
 
-        val intent = Intent(applicationContext, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-
-        val pendingIntent: PendingIntent? = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val openAppIntent = Intent(applicationContext, MainActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }
+        val openAppPendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, 0, openAppIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setContentTitle(randomTitles.random())
             .setContentText(randomTexts.random())
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(openAppPendingIntent)
             .build()
 
         notificationManager.notify(uniqueNotificationId, notification)
