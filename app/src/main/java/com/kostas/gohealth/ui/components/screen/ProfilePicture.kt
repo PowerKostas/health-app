@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,19 +27,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import coil.compose.AsyncImage
 import com.kostas.gohealth.R
 
-// Imported the Coil library to properly load big images (WebP images)
 // Adds a profile picture and a button below it that opens a menu to optionally select a new picture
 @Composable
-fun ProfilePicture(
-    profilePictureString: String,
-    onImageSelected: (String) -> Unit
-) {
+fun ProfilePicture(profilePictureString: String, onImageSelected: (String) -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
@@ -59,13 +57,15 @@ fun ProfilePicture(
     )
 
     // Gets the profile picture from the profile picture string
-    val profilePicture = avatarMap[profilePictureString]
+    val profilePicture = avatarMap.getValue(profilePictureString)
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(
-            model = profilePicture,
+        Icon(
+            painter = painterResource(id = profilePicture),
             contentDescription = "Animal",
-            modifier = Modifier.size(120.dp)
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .size(120.dp)
                 .border(width = 2.dp, color = MaterialTheme.colorScheme.onPrimary, shape = CircleShape).padding(2.dp)
         )
 
@@ -88,9 +88,10 @@ fun ProfilePicture(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) { items(avatarMap.entries.toList()) { (imageString, image) ->
-                        AsyncImage(
-                            model = image,
+                        Icon(
+                            painter = painterResource(id = image),
                             contentDescription = "Animal",
+                            tint = Color.Unspecified,
                             modifier = Modifier
                                 .aspectRatio(1f)
                                 .border(width = 2.dp, color = MaterialTheme.colorScheme.onPrimary, shape = CircleShape)

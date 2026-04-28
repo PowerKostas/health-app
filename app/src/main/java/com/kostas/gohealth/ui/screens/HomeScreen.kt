@@ -2,6 +2,7 @@ package com.kostas.gohealth.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -55,8 +57,9 @@ fun HomeScreen() {
     HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(48.dp),
+        verticalArrangement = Arrangement.spacedBy(48.dp, Alignment.CenterVertically),
         modifier = Modifier
+            .fillMaxSize()
             .padding(16.dp, 32.dp, 16.dp, 32.dp)
             .verticalScroll(rememberScrollState())
     ) {

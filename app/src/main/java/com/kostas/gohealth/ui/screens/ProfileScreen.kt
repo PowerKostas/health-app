@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kostas.gohealth.ui.components.general.DropdownMenu
@@ -65,20 +69,25 @@ fun ProfileScreen() {
     var weightGoal by remember { mutableStateOf(userCharacteristics.weightGoal ?: "") }
 
     // Draws the screen
+    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
+
         ProfilePicture(profilePictureString) {
             // Function that triggers when a new profile picture is tapped, it makes sure that a user is actually loaded on the screen, updates
             // the UI instantly, creates a copy of the user and only updates the profile picture String in the local database
-                newProfilePictureString ->
-            profilePictureString = newProfilePictureString
-            userSettings.let { settings ->
-                settingsViewModel.updateUserSettings(
-                    settings.copy(profilePictureString = newProfilePictureString)
+            newProfilePictureString ->
+                profilePictureString = newProfilePictureString
+                userSettings.let { settings ->
+                    settingsViewModel.updateUserSettings(
+                        settings.copy(profilePictureString = newProfilePictureString)
                 )
             }
         }
@@ -102,13 +111,23 @@ fun ProfileScreen() {
                     label = { Text("Username") },
                     modifier = Modifier.fillMaxWidth(),
 
-                    // Updates the local database, every time the text changes
-                    onValueChange = { newValue ->
-                        username = newValue
-
-                        settingsViewModel.updateUserSettings(
-                            userSettings.copy(username = newValue)
+                    // Adds a small counting text below the field
+                    supportingText = {
+                        Text(
+                            text = "${username.length} / 15",
+                            textAlign = TextAlign.End,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .offset(x = 16.dp)
                         )
+                    },
+
+                    // Updates the local database, every time the text changes, if it's length is below 15
+                    onValueChange = { newValue ->
+                        if (newValue.length <= 15) {
+                            username = newValue
+                            settingsViewModel.updateUserSettings(userSettings.copy(username = newValue))
+                        }
                     }
                 )
 

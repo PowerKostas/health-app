@@ -42,7 +42,7 @@ class LeaderboardSyncWorker(appContext: Context, workerParams: WorkerParameters)
                     "totalSteps" to FieldValue.increment(unsyncedTotalSteps.toLong())
                 )
 
-                firestore.collection("leaderboard")
+                firestore.collection("leaderboards")
                     .document(userSettings.firestoreId)
                     .set(updateData, SetOptions.merge())
                     .await()

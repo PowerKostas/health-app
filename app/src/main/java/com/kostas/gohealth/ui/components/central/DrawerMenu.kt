@@ -45,6 +45,7 @@ import com.kostas.gohealth.helpers.calculateStepsGoal
 import com.kostas.gohealth.helpers.calculateWaterGoal
 import com.kostas.gohealth.ui.screens.CategoriesScreen
 import com.kostas.gohealth.ui.screens.HomeScreen
+import com.kostas.gohealth.ui.screens.LeaderboardsScreen
 import com.kostas.gohealth.ui.screens.ProfileScreen
 import com.kostas.gohealth.ui.screens.StepsScreen
 import com.kostas.gohealth.ui.viewModels.CharacteristicsViewModel
@@ -208,7 +209,7 @@ fun DrawerMenu() {
                     "Push-ups" -> CategoriesScreen("Push-ups", R.drawable.push_ups, Color.Black, userTrackings?.pushUpsProgress?.sum() ?: 0, calculatePushUpsGoal(userCharacteristics), "reps")
                     "Steps" -> StepsScreen(userTrackings?.stepsProgress ?: 0, calculateStepsGoal(userCharacteristics))
                     "Profile" -> ProfileScreen()
-                    "Leaderboards" -> Text("This is the Leaderboards screen")
+                    "Leaderboards" -> LeaderboardsScreen()
                 }
             }
         }

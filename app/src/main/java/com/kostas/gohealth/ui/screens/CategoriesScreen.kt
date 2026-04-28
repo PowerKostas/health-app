@@ -57,7 +57,6 @@ fun CategoriesScreen(categoryName: String, iconId: Int, progressBarColour: Color
             val updatedUser = when (categoryName) {
                 "Water" -> trackings.copy(waterProgress = trackings.waterProgress.dropLast(1))
                 "Calories" -> trackings.copy(caloriesProgress = trackings.caloriesProgress.dropLast(1))
-
                 "Push-ups" -> trackings.copy(pushUpsProgress = trackings.pushUpsProgress.dropLast(1))
                 else -> throw IllegalStateException("Invalid Input")
             }
