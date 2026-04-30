@@ -93,11 +93,13 @@ fun LeaderboardBox(profilePictureId: Int, username: String, categoryId: Int, cat
                     }
 
                     // Doesn't need to draw the "Mine: X" text, if the top user is the current user
-                    Text(
-                        text = "Mine: $currentUserScore",
-                        style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.End
-                    )
+                    if (currentUserScore != null) {
+                        Text(
+                            text = "Mine: $currentUserScore",
+                            style = MaterialTheme.typography.labelSmall,
+                            textAlign = TextAlign.End
+                        )
+                    }
                 }
             }
         }
