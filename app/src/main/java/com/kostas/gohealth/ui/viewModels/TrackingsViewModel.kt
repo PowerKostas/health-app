@@ -37,14 +37,6 @@ class TrackingsViewModel(private val trackingsDao: TrackingsDao) : ViewModel() {
             if (trackingsDao.getAll().first().isEmpty()) {
                 val defaultTrackings = Trackings(
                     userId = userId,
-                    waterProgress = emptyList(),
-                    caloriesProgress = emptyList(),
-                    pushUpsProgress = emptyList(),
-                    stepsProgress = 0,
-                    unsyncedWaterGoalsCompleted = 0,
-                    unsyncedCaloriesGoalsCompleted = 0,
-                    unsyncedPushUpsGoalsCompleted = 0,
-                    unsyncedTotalSteps = 0
                 )
 
                 trackingsDao.insert(defaultTrackings)

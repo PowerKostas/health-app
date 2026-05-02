@@ -14,10 +14,11 @@ import com.kostas.gohealth.helpers.calculateWaterGoal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
-// Resets the normal fields in the trackings table, also increases the unsynced fields, in case there is no network at midnight to send the
-// data at the remote database, this function is chained with the leaderboard sync one to ensure that they both happen at midnight and the
-// reset executes first
+// If it's a new day, it resets the normal fields in the trackings table, also it increases the unsynced fields, in case there is no network
+// to send the data at the remote database, this function is chained with the leaderboard sync one to ensure that the reset executes
+// first, this function is called from MainActivity
 class ResetTrackingsWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
@@ -25,11 +26,18 @@ class ResetTrackingsWorker(appContext: Context, workerParams: WorkerParameters) 
                 val database = DatabaseProvider.getDatabase(applicationContext)
                 val trackingsDao = database.trackingsDao()
                 val userTrackings = trackingsDao.getAll().first().firstOrNull()
+                val settingsDao = database.settingsDao()
+                val userSettings = database.settingsDao().getAll().first().firstOrNull()
                 val userCharacteristics = database.characteristicsDao().getAll().first().firstOrNull()
 
                 // Triggers on a fresh install
-                if (userTrackings == null || userCharacteristics == null) {
+                if (userTrackings == null || userSettings == null || userCharacteristics == null) {
                     return@withContext Result.retry()
+                }
+
+                // If it has already reset today, it doesn't reset again
+                if (LocalDate.now().toString() <= userSettings.lastSavedDate) {
+                    return@withContext Result.success()
                 }
 
                 val waterGoal = calculateWaterGoal(userCharacteristics)
@@ -56,7 +64,7 @@ class ResetTrackingsWorker(appContext: Context, workerParams: WorkerParameters) 
                 trackingsDao.update(updateUserTrackings)
 
                 // Every new request replaces the old one, since all the data needed is added up in the local database
-                val workRequest = OneTimeWorkRequestBuilder<LeaderboardSyncWorker>()
+                val workRequest = OneTimeWorkRequestBuilder<LeaderboardsSyncWorker>()
                     .setConstraints(
                         Constraints.Builder()
                             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -70,6 +78,9 @@ class ResetTrackingsWorker(appContext: Context, workerParams: WorkerParameters) 
                     androidx.work.ExistingWorkPolicy.REPLACE,
                     workRequest
                 )
+
+                val updateUserSettings = userSettings.copy(lastSavedDate = LocalDate.now().toString())
+                settingsDao.update(updateUserSettings)
 
                 Result.success()
             }

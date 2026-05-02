@@ -12,15 +12,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.Firebase
@@ -33,6 +32,7 @@ import com.kostas.gohealth.ui.themes.GoHealthTheme
 import com.kostas.gohealth.ui.viewModels.CharacteristicsViewModel
 import com.kostas.gohealth.ui.viewModels.SettingsViewModel
 import com.kostas.gohealth.ui.viewModels.TrackingsViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.Duration
@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels { SettingsViewModel.Factory }
+    private val characteristicsViewModel: CharacteristicsViewModel by viewModels { CharacteristicsViewModel.Factory }
+    private val trackingsViewModel: TrackingsViewModel by viewModels { TrackingsViewModel.Factory }
 
     // On first time open, the code doesn't wait for user input on the permissions dialog and the foreground service doesn't have the
     // permissions to run, to fix this, foreground service runs from here too
@@ -79,13 +81,22 @@ class MainActivity : ComponentActivity() {
         }
 
         schedulePeriodicNotification()
-        scheduleDailyTrackingsReset()
+        scheduleDailyTrackingsResetAppActive()
 
-        // Starts the foreground step tracking service, only if the step tracking setting and the physical activity permissions are
-        // enabled. Steps are only counted if the foreground service is active
+        // Runs every time the settings table changes
         lifecycleScope.launch {
             settingsViewModel.settings.collect { userSettingsList ->
                 val userSettings = userSettingsList.firstOrNull()
+
+                // Settings is the table with the primary key, it's initialized automatically. The other 2 tables, with the foreign
+                // keys, get initialized here
+                userSettings?.userId?.let { uid ->
+                    characteristicsViewModel.initializeUserCharacteristics(uid)
+                    trackingsViewModel.initializeUserTrackings(uid)
+                }
+
+                // Starts the foreground step tracking service, only if the step tracking setting and the physical activity permissions
+                // are enabled. Steps are only counted if the foreground service is active
                 if (userSettings?.stepTracking == "Enabled") {
                     val serviceIntent = Intent(this@MainActivity, StepTrackerService::class.java)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -109,24 +120,8 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
-            val characteristicsViewModel: CharacteristicsViewModel = viewModel(factory = CharacteristicsViewModel.Factory)
-            val trackingsViewModel: TrackingsViewModel = viewModel(factory = TrackingsViewModel.Factory)
-
             val userSettingsList by settingsViewModel.settings.collectAsState()
             val userSettings = userSettingsList.firstOrNull()
-            val userId = userSettings?.userId
-
-            // Settings is the table with the primary key, it's initialized automatically. LaunchedEffect runs everytime the key
-            // changes, including the initialization to a null value, so the actual block here only executes the first time the user opens
-            // the app. The other 2 tables, with the foreign keys, get initialized when that happens
-            LaunchedEffect(userId) {
-                if (userId != null) {
-                    val userId = userSettingsList.first().userId
-                    characteristicsViewModel.initializeUserCharacteristics(userId)
-                    trackingsViewModel.initializeUserTrackings(userId)
-                }
-            }
 
             // Gets the set theme option and passes it to the function that sets the theme
             if (userSettings != null) {
@@ -145,10 +140,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Handles edge case where, with the app on the background, the user allows activity recognition permissions and reopens the app, this
-    // opens the foreground service in that instance
     override fun onResume() {
         super.onResume()
+
+        scheduleDailyTrackingsReset()
+
+        // Handles edge case where, with the app on the background, the user allows activity recognition permissions and reopens the
+        // app, this opens the foreground service in that instance
         lifecycleScope.launch {
             val userSettingsList = settingsViewModel.settings.first()
             val userSettings = userSettingsList.firstOrNull()
@@ -192,19 +190,13 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    // Resets the trackings table every midnight, doesn't need network
+    // Every time the app is put on the foreground, it calls the daily reset worker, doesn't need network, which calls the daily
+    // leaderboards sync worker, needs network. This approach doesn't rely on inconsistent periodic workers, daily resetting works as
+    // intended, but for the daily leaderboards sync to happen, the user has to open the app
     private fun scheduleDailyTrackingsReset() {
-        // Testing
-        //val testRequest = OneTimeWorkRequestBuilder<ResetTrackingsWorker>().build()
-        //WorkManager.getInstance(this).enqueue(testRequest)
+        // For testing, comment out the date check in ResetTrackingsWorker
 
-        // Sets an initial delay to sync the 24-hour timer to midnight
-        val now = LocalDateTime.now()
-        val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
-        val delayInMilliseconds = Duration.between(now, nextMidnight).toMillis()
-
-        val workRequest = PeriodicWorkRequestBuilder<ResetTrackingsWorker>(24, TimeUnit.HOURS)
-            .setInitialDelay(delayInMilliseconds, TimeUnit.MILLISECONDS)
+        val workRequest = OneTimeWorkRequestBuilder<ResetTrackingsWorker>()
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
@@ -213,10 +205,27 @@ class MainActivity : ComponentActivity() {
 
             .build()
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork(
             "daily_reset",
-            ExistingPeriodicWorkPolicy.KEEP,
+            androidx.work.ExistingWorkPolicy.REPLACE,
             workRequest
         )
+    }
+
+    // Without this function, if the user is inside the app, the reset and sync won't happen until he closes and re-opens the app. Sets
+    // a delay till midnight and executes the according worker then, if the app closes, this dies as well. It's a loop for the edge case
+    // that the user leaves the app open for multiple days
+    private fun scheduleDailyTrackingsResetAppActive() {
+        lifecycleScope.launch {
+            while (true) {
+                val now = LocalDateTime.now()
+                val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
+                val millisToMidnight = Duration.between(now, nextMidnight).toMillis()
+
+                delay(millisToMidnight)
+                scheduleDailyTrackingsReset()
+                delay(60000)
+            }
+        }
     }
 }

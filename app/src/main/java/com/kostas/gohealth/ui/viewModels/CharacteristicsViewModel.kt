@@ -35,19 +35,13 @@ class CharacteristicsViewModel(private val characteristicsDao: CharacteristicsDa
         started = SharingStarted.WhileSubscribed(5000)
     )
 
-    // Runs every time the app opens, SettingsViewModel calls it, and checks if a user hasn't been created yet (first time the app opens).
-    // If there are no users it inserts a default user
+    // SettingsViewModel calls it, and checks if a user hasn't been created yet (first time the app opens). If there are no users it
+    // inserts a default user
     fun initializeUserCharacteristics(userId: Int) {
         viewModelScope.launch {
             if (characteristicsDao.getAll().first().isEmpty()) {
                 val defaultCharacteristics = Characteristics(
                     userId = userId,
-                    gender = null,
-                    age = null,
-                    height = null,
-                    weight = null,
-                    activityLevel = null,
-                    weightGoal = null
                 )
 
                 characteristicsDao.insert(defaultCharacteristics)

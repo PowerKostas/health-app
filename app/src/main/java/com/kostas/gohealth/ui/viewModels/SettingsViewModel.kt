@@ -35,14 +35,7 @@ class SettingsViewModel(private val settingsDao: SettingsDao) : ViewModel() {
     init {
         viewModelScope.launch {
             if (settingsDao.getAll().first().isEmpty()) {
-                val defaultSettings = Settings(
-                    profilePictureString = "dinosaur",
-                    username = null,
-                    appearance = "Light",
-                    lastSavedSteps = 0,
-                    stepTracking = "Enabled"
-                )
-
+                val defaultSettings = Settings()
                 settingsDao.insert(defaultSettings)
             }
         }

@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 
 // It updates the remote Firestore database with the user's needed details, total water, calories, push-ups goals completed and total
 // steps, this function is called from ResetTrackingsWorker
-class LeaderboardSyncWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
+class LeaderboardsSyncWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
             val database = DatabaseProvider.getDatabase(applicationContext)
