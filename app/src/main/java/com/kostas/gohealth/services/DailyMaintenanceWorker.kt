@@ -1,0 +1,94 @@
+package com.kostas.gohealth.services
+
+import android.content.Context
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.kostas.gohealth.data.DatabaseProvider
+import com.kostas.gohealth.helpers.calculateCaloriesGoal
+import com.kostas.gohealth.helpers.calculatePushUpsGoal
+import com.kostas.gohealth.helpers.calculateStepsGoal
+import com.kostas.gohealth.helpers.calculateWaterGoal
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
+
+// If it's a new day, the remote Firestore database is updated with the users' needed details and with the incremented total
+// water, calories, push-ups, steps goals completed and the total steps. If there is no network, the data goes in Firebase's cache, and it
+// will eventually update the database when a connection is back up, usually when the user reopens the app. It also resets the trackings
+// and settings table
+class DailyMaintenanceWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
+    override suspend fun doWork(): Result {
+        return withContext(Dispatchers.IO) {
+            try {
+                val database = DatabaseProvider.getDatabase(applicationContext)
+                val trackingsDao = database.trackingsDao()
+                val settingsDao = database.settingsDao()
+
+                val userTrackings = trackingsDao.getAll().first().firstOrNull()
+                val userSettings = settingsDao.getAll().first().firstOrNull()
+                val userCharacteristics = database.characteristicsDao().getAll().first().firstOrNull()
+
+                // Triggers on a fresh install
+                if (userTrackings == null || userSettings == null || userCharacteristics == null) {
+                    return@withContext Result.success()
+                }
+
+                // If it has already reset today, it doesn't reset again
+                if ( LocalDate.now().toString() == userSettings.lastSavedDate) {
+                    return@withContext Result.success()
+                }
+
+                val waterGoal = calculateWaterGoal(userCharacteristics)
+                val caloriesGoal = calculateCaloriesGoal(userCharacteristics)
+                val pushUpsGoal = calculatePushUpsGoal(userCharacteristics)
+                val stepsGoal = calculateStepsGoal(userCharacteristics)
+
+                val waterGoalCompleted = if (userTrackings.waterProgress.sum() >= waterGoal) 1L else 0L
+                val caloriesGoalCompleted = if (userTrackings.caloriesProgress.sum() >= caloriesGoal) 1L else 0L
+                val pushUpsGoalCompleted = if (userTrackings.pushUpsProgress.sum() >= pushUpsGoal) 1L else 0L
+                val stepsGoalCompleted = if (userTrackings.stepsProgress >= stepsGoal) 1L else 0L
+                val totalSteps = userTrackings.stepsProgress
+
+                val updateData = hashMapOf(
+                    "username" to (userSettings.username ?: ""),
+                    "profilePictureString" to userSettings.profilePictureString,
+                    "waterGoalsCompleted" to FieldValue.increment(waterGoalCompleted),
+                    "caloriesGoalsCompleted" to FieldValue.increment(caloriesGoalCompleted),
+                    "pushUpsGoalsCompleted" to FieldValue.increment(pushUpsGoalCompleted),
+                    "stepsGoalsCompleted" to FieldValue.increment(stepsGoalCompleted),
+                    "totalSteps" to FieldValue.increment(totalSteps.toLong())
+                )
+
+                FirebaseFirestore.getInstance().collection("leaderboards")
+                    .document(Firebase.auth.currentUser?.uid ?: "")
+                    .set(updateData, SetOptions.merge())
+
+
+                val updateUserTrackings = userTrackings.copy(
+                    waterProgress = emptyList(),
+                    caloriesProgress = emptyList(),
+                    pushUpsProgress = emptyList(),
+                    stepsProgress = 0
+                )
+
+                trackingsDao.update(updateUserTrackings)
+
+                val updateUserSettings = userSettings.copy(lastSavedDate = LocalDate.now().toString())
+                settingsDao.update(updateUserSettings)
+
+                Result.success()
+            }
+
+            catch (e: Exception) {
+                e.printStackTrace()
+                Result.retry()
+            }
+        }
+    }
+}

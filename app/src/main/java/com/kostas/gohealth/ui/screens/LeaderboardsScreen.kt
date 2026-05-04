@@ -50,6 +50,7 @@ fun getTopCategoryUser(category: String): State<LeaderboardEntry?> {
                         waterGoalsCompleted = topUserDoc.getLong("waterGoalsCompleted") ?: 0L,
                         caloriesGoalsCompleted = topUserDoc.getLong("caloriesGoalsCompleted") ?: 0L,
                         pushUpsGoalsCompleted = topUserDoc.getLong("pushUpsGoalsCompleted") ?: 0L,
+                        stepsGoalsCompleted = topUserDoc.getLong("stepsGoalsCompleted") ?: 0L,
                         totalSteps = topUserDoc.getLong("totalSteps") ?: 0L
                     )
                 }
@@ -87,6 +88,7 @@ fun getUserListener(userId: String?): State<LeaderboardEntry?> {
                         waterGoalsCompleted = snapshot.getLong("waterGoalsCompleted") ?: 0L,
                         caloriesGoalsCompleted = snapshot.getLong("caloriesGoalsCompleted") ?: 0L,
                         pushUpsGoalsCompleted = snapshot.getLong("pushUpsGoalsCompleted") ?: 0L,
+                        stepsGoalsCompleted = snapshot.getLong("stepsGoalsCompleted") ?: 0L,
                         totalSteps = snapshot.getLong("totalSteps") ?: 0L
                     )
                 }
@@ -104,7 +106,8 @@ fun LeaderboardsScreen() {
     val topWaterUser by getTopCategoryUser("waterGoalsCompleted")
     val topCaloriesUser by getTopCategoryUser("caloriesGoalsCompleted")
     val topPushUpsUser by getTopCategoryUser("pushUpsGoalsCompleted")
-    val topStepsUser by getTopCategoryUser("totalSteps")
+    val topStepsUser by getTopCategoryUser("stepsGoalsCompleted")
+    val topTotalStepsUser by getTopCategoryUser("totalSteps")
 
     val currentUserId = Firebase.auth.currentUser?.uid
     val currentUser by getUserListener(currentUserId)
@@ -124,7 +127,7 @@ fun LeaderboardsScreen() {
         "sheep" to R.drawable.sheep
     )
 
-    if (topWaterUser != null && topCaloriesUser != null && topPushUpsUser != null && topStepsUser != null) { // Loading Screen
+    if (topWaterUser != null && topCaloriesUser != null && topPushUpsUser != null && topStepsUser != null && topTotalStepsUser != null) { // Loading Screen
         // Draws the screen
         HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
@@ -161,6 +164,11 @@ fun LeaderboardsScreen() {
                     val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.pushUpsGoalsCompleted?.toString() ?: "0")
                     LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.push_ups, "Push-ups", user.pushUpsGoalsCompleted.toString(), currentUserScore)
                 }
+
+                topStepsUser?.let { user ->
+                    val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.stepsGoalsCompleted?.toString() ?: "0")
+                    LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.steps, "Steps", user.stepsGoalsCompleted.toString(), currentUserScore)
+                }
             }
 
             Column(
@@ -174,7 +182,7 @@ fun LeaderboardsScreen() {
                     color = Color(0xFFD4AF37)
                 )
 
-                topStepsUser?.let { user ->
+                topTotalStepsUser?.let { user ->
                     val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.totalSteps?.toString() ?: "0")
                     LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.steps, "Steps", user.totalSteps.toString(), currentUserScore)
                 }
