@@ -213,14 +213,14 @@ class MainActivity : ComponentActivity() {
     }
 
     // Without this function, if the user is inside the app, the daily maintenance won't happen until he closes and re-opens the
-    // app. Sets a delay till midnight and executes the according worker then, if the app closes, this dies as well. It's a loop for the
-    // edge case that the user leaves the app open for multiple days
+    // app. Sets a delay till midnight, plus a 5-second buffer, and executes the according worker then, if the app closes, this dies
+    // as well. It's a loop for the edge case that the user leaves the app open for multiple days
     private fun scheduleDailyMaintenanceAppActive() {
         lifecycleScope.launch {
             while (true) {
                 val now = LocalDateTime.now()
                 val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
-                val millisToMidnight = Duration.between(now, nextMidnight).toMillis()
+                val millisToMidnight = Duration.between(now, nextMidnight).toMillis() + 5000L
 
                 delay(millisToMidnight)
                 scheduleDailyMaintenance()

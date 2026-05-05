@@ -69,185 +69,188 @@ fun ProfileScreen() {
     var weightGoal by remember { mutableStateOf(userCharacteristics.weightGoal ?: "") }
 
     // Draws the screen
-    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
+    Column(modifier = Modifier.fillMaxSize()) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(24.dp))
-
-        ProfilePicture(profilePictureString) {
-            // Function that triggers when a new profile picture is tapped, it makes sure that a user is actually loaded on the screen, updates
-            // the UI instantly, creates a copy of the user and only updates the profile picture String in the local database
-            newProfilePictureString ->
-                profilePictureString = newProfilePictureString
-                userSettings.let { settings ->
-                    settingsViewModel.updateUserSettings(
-                        settings.copy(profilePictureString = newProfilePictureString)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Personal Details",
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp)
-        )
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
 
-        CustomSurface {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(space = 24.dp),
-                modifier = Modifier.padding(24.dp)
-            ) {
-                OutlinedTextField(
-                    value = username,
-                    label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth(),
+            ProfilePicture(profilePictureString) {
+                // Function that triggers when a new profile picture is tapped, it makes sure that a user is actually loaded on the screen, updates
+                // the UI instantly, creates a copy of the user and only updates the profile picture String in the local database
+                newProfilePictureString ->
+                    profilePictureString = newProfilePictureString
+                    userSettings.let { settings ->
+                        settingsViewModel.updateUserSettings(
+                            settings.copy(profilePictureString = newProfilePictureString)
+                    )
+                }
+            }
 
-                    // Adds a small counting text below the field
-                    supportingText = {
-                        Text(
-                            text = "${username.length} / 15",
-                            textAlign = TextAlign.End,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset(x = 16.dp)
-                        )
-                    },
+            Spacer(modifier = Modifier.height(24.dp))
 
-                    // Updates the local database, every time the text changes, if it's length is below 15
-                    onValueChange = { newValue ->
-                        if (newValue.length <= 15) {
-                            username = newValue
-                            settingsViewModel.updateUserSettings(userSettings.copy(username = newValue))
+            Text(
+                text = "Personal Details",
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp)
+            )
+
+            CustomSurface {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(space = 24.dp),
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    OutlinedTextField(
+                        value = username,
+                        label = { Text("Username") },
+                        modifier = Modifier.fillMaxWidth(),
+
+                        // Adds a small counting text below the field
+                        supportingText = {
+                            Text(
+                                text = "${username.length} / 15",
+                                textAlign = TextAlign.End,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .offset(x = 16.dp)
+                            )
+                        },
+
+                        // Updates the local database, every time the text changes, if it's length is below 15
+                        onValueChange = { newValue ->
+                            if (newValue.length <= 15) {
+                                username = newValue
+                                settingsViewModel.updateUserSettings(userSettings.copy(username = newValue))
+                            }
+                        }
+                    )
+
+                    DropdownMenu(
+                        "Gender", listOf("Male", "Female"),
+                        gender
+                    ) { newValue ->
+                        gender = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(gender = newValue)
+                            )
                         }
                     }
-                )
 
-                DropdownMenu(
-                    "Gender", listOf("Male", "Female"),
-                    gender
-                ) { newValue ->
-                    gender = newValue
-                    userCharacteristics.let { characteristics ->
-                        characteristicsViewModel.updateUserCharacteristics(
-                            characteristics.copy(gender = newValue)
-                        )
+                    NumberTextField(
+                        "Age",
+                        150f,
+                        age
+                    ) { newValue ->
+                        age = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(age = newValue.toFloatOrNull())
+                            )
+                        }
+                    }
+
+                    NumberTextField(
+                        "Height (cm)",
+                        300f,
+                        height
+                    ) { newValue ->
+                        height = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(height = newValue.toFloatOrNull())
+                            )
+                        }
+                    }
+
+                    NumberTextField(
+                        "Weight (kg)",
+                        700f,
+                        weight
+                    ) { newValue ->
+                        weight = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(weight = newValue.toFloatOrNull())
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        "Activity Level", listOf("Sedentary", "Moderate", "High"),
+                        activityLevel
+                    ) { newValue ->
+                        activityLevel = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(activityLevel = newValue)
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        "Weight Goal", listOf("Lose", "Maintain", "Gain"),
+                        weightGoal
+                    ) { newValue ->
+                        weightGoal = newValue
+                        userCharacteristics.let { characteristics ->
+                            characteristicsViewModel.updateUserCharacteristics(
+                                characteristics.copy(weightGoal = newValue)
+                            )
+                        }
                     }
                 }
+            }
 
-                NumberTextField(
-                    "Age",
-                    150f,
-                    age
-                ) { newValue ->
-                    age = newValue
-                    userCharacteristics.let { characteristics ->
-                        characteristicsViewModel.updateUserCharacteristics(
-                            characteristics.copy(age = newValue.toFloatOrNull())
-                        )
-                    }
-                }
+            Spacer(modifier = Modifier.height(24.dp))
 
-                NumberTextField(
-                    "Height (cm)",
-                    300f,
-                    height
-                ) { newValue ->
-                    height = newValue
-                    userCharacteristics.let { characteristics ->
-                        characteristicsViewModel.updateUserCharacteristics(
-                            characteristics.copy(height = newValue.toFloatOrNull())
-                        )
-                    }
-                }
+            Text(
+                text = "Step Tracking",
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp)
+            )
 
-                NumberTextField(
-                    "Weight (kg)",
-                    700f,
-                    weight
-                ) { newValue ->
-                    weight = newValue
-                    userCharacteristics.let { characteristics ->
-                        characteristicsViewModel.updateUserCharacteristics(
-                            characteristics.copy(weight = newValue.toFloatOrNull())
-                        )
-                    }
-                }
-
-                DropdownMenu(
-                    "Activity Level", listOf("Sedentary", "Moderate", "High"),
-                    activityLevel
-                ) { newValue ->
-                    activityLevel = newValue
-                    userCharacteristics.let { characteristics ->
-                        characteristicsViewModel.updateUserCharacteristics(
-                            characteristics.copy(activityLevel = newValue)
-                        )
-                    }
-                }
-
-                DropdownMenu(
-                    "Weight Goal", listOf("Lose", "Maintain", "Gain"),
-                    weightGoal
-                ) { newValue ->
-                    weightGoal = newValue
-                    userCharacteristics.let { characteristics ->
-                        characteristicsViewModel.updateUserCharacteristics(
-                            characteristics.copy(weightGoal = newValue)
+            CustomSurface {
+                RadioButtonGroup(
+                    listOf("Enabled", "Disabled"),
+                    userSettings.stepTracking
+                ) { newSetting ->
+                    userSettings.let { settings ->
+                        settingsViewModel.updateUserSettings(
+                            settings.copy(stepTracking = newSetting)
                         )
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "Step Tracking",
-            modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp)
-        )
+            Text(
+                text = "Appearance",
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 16.dp)
+            )
 
-        CustomSurface {
-            RadioButtonGroup(
-                listOf("Enabled", "Disabled"),
-                userSettings.stepTracking
-            ) { newSetting ->
-                userSettings.let { settings ->
-                    settingsViewModel.updateUserSettings(
-                        settings.copy(stepTracking = newSetting)
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Appearance",
-            modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp)
-        )
-
-        CustomSurface {
-            RadioButtonGroup(
-                listOf("Light", "Dark", "Dynamic"),
-                userSettings.appearance
-            ) { newAppearance ->
-                userSettings.let { settings ->
-                    settingsViewModel.updateUserSettings(
-                        settings.copy(appearance = newAppearance)
-                    )
+            CustomSurface {
+                RadioButtonGroup(
+                    listOf("Light", "Dark", "Dynamic"),
+                    userSettings.appearance
+                ) { newAppearance ->
+                    userSettings.let { settings ->
+                        settingsViewModel.updateUserSettings(
+                            settings.copy(appearance = newAppearance)
+                        )
+                    }
                 }
             }
         }

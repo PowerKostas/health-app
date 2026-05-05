@@ -3,6 +3,7 @@ package com.kostas.gohealth.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -54,27 +55,30 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
     val stepsGoal = calculateStepsGoal(userCharacteristics)
 
     // Draws the screen
-    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
+    Column(modifier = Modifier.fillMaxSize()) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(48.dp, Alignment.CenterVertically),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp, 32.dp, 16.dp, 32.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        // Warning text, if the user hasn't filled all the characteristics in his profile
-        if (userCharacteristics.gender == null || userCharacteristics.age == null || userCharacteristics.height == null || userCharacteristics.weight == null || userCharacteristics.activityLevel == null || userCharacteristics.weightGoal == null) {
-            Text(
-                text = "Complete your profile for more personalized results.",
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center
-            )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(48.dp, Alignment.CenterVertically),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp, 32.dp, 16.dp, 32.dp)
+        ) {
+            // Warning text, if the user hasn't filled all the characteristics in his profile
+            if (userCharacteristics.gender == null || userCharacteristics.age == null || userCharacteristics.height == null || userCharacteristics.weight == null || userCharacteristics.activityLevel == null || userCharacteristics.weightGoal == null) {
+                Text(
+                    text = "Complete your profile for more personalized results.",
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgressSum.toFloat() / waterGoal).coerceAtMost(1.0f), onClick = { onNavigate("Water") })
+            ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgressSum.toFloat() / caloriesGoal).coerceAtMost(1.0f), onClick = { onNavigate("Calories") })
+            ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgressSum.toFloat() / pushUpsGoal).coerceAtMost(1.0f), onClick = { onNavigate("Push-ups") })
+            ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgress.toFloat() / stepsGoal).coerceAtMost(1.0f), onClick = { onNavigate("Steps") })
         }
-
-        ProgressBox(R.drawable.water, "Water", Color(0xFF2196F3), (waterProgressSum.toFloat() / waterGoal).coerceAtMost(1.0f), onClick = { onNavigate("Water") })
-        ProgressBox(R.drawable.calories, "Calories", Color(0xFF8B4513), (caloriesProgressSum.toFloat() / caloriesGoal).coerceAtMost(1.0f), onClick = { onNavigate("Calories") })
-        ProgressBox(R.drawable.push_ups, "Push-ups", Color.Black, (pushUpsProgressSum.toFloat() / pushUpsGoal).coerceAtMost(1.0f), onClick = { onNavigate("Push-ups") })
-        ProgressBox(R.drawable.steps, "Steps", Color(0xFFE0AC69), (stepsProgress.toFloat() / stepsGoal).coerceAtMost(1.0f), onClick = { onNavigate("Steps") })
     }
 }

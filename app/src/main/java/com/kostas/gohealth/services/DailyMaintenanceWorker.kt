@@ -40,7 +40,7 @@ class DailyMaintenanceWorker(appContext: Context, workerParams: WorkerParameters
                 }
 
                 // If it has already reset today, it doesn't reset again
-                if ( LocalDate.now().toString() == userSettings.lastSavedDate) {
+                if (LocalDate.now().toString() <= userSettings.lastSavedDate) {
                     return@withContext Result.success()
                 }
 

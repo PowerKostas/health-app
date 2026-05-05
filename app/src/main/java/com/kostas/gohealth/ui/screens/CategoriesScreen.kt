@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -64,55 +65,58 @@ fun CategoriesScreen(categoryName: String, iconId: Int, progressBarColour: Color
         }
     }
 
-    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
+    Column(modifier = Modifier.fillMaxSize()) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically),
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Icon(
-            painter = painterResource(id = iconId),
-            contentDescription = "Category",
-            tint = Color.Unspecified,
-            modifier = Modifier.size(200.dp)
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = iconId),
+                contentDescription = "Category",
+                tint = Color.Unspecified,
+                modifier = Modifier.size(200.dp)
+            )
 
-        Text(
-            text = "$categoryProgress / $categoryGoal $metric",
-            style = MaterialTheme.typography.titleLarge
-        )
+            Text(
+                text = "$categoryProgress / $categoryGoal $metric",
+                style = MaterialTheme.typography.titleLarge
+            )
 
-        ProgressBar(20.dp, progressBarColour, categoryProgress.toFloat() / categoryGoal)
+            ProgressBar(20.dp, progressBarColour, categoryProgress.toFloat() / categoryGoal)
 
-        Text(text = "Add $metric to reach your goal!")
+            Text(text = "Add $metric to reach your goal!")
 
-        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                val modifier = Modifier.weight(1f)
-                ActionButton(modifier, progressBarColour, "+1") { handleAddAmount(1) }
-                ActionButton(modifier, progressBarColour, "+10") { handleAddAmount(10) }
-                ActionButton(modifier, progressBarColour, "+100") { handleAddAmount(100) }
-            }
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    val modifier = Modifier.weight(1f)
+                    ActionButton(modifier, progressBarColour, "+1") { handleAddAmount(1) }
+                    ActionButton(modifier, progressBarColour, "+10") { handleAddAmount(10) }
+                    ActionButton(modifier, progressBarColour, "+100") { handleAddAmount(100) }
+                }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                val modifier = Modifier.weight(1f)
-                ActionButton(modifier, progressBarColour, "Custom") { showCustomAlertDialog = true }
-                ActionButton(modifier, Color(0xFFE53935), "Undo") { handleDeletePrevious() }
+                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    val modifier = Modifier.weight(1f)
+                    ActionButton(modifier, progressBarColour, "Custom") { showCustomAlertDialog = true }
+                    ActionButton(modifier, Color(0xFFE53935), "Undo") { handleDeletePrevious() }
+                }
             }
         }
-    }
 
-    if (showCustomAlertDialog) {
-        CustomAlertDialog(
-            metric = metric,
-            onDismiss = { showCustomAlertDialog = false },
-            onConfirm = { amount ->
-                handleAddAmount(amount)
-            }
-        )
+        if (showCustomAlertDialog) {
+            CustomAlertDialog(
+                metric = metric,
+                onDismiss = { showCustomAlertDialog = false },
+                onConfirm = { amount ->
+                    handleAddAmount(amount)
+                }
+            )
+        }
     }
 }

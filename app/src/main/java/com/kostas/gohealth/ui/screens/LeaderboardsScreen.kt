@@ -3,6 +3,7 @@ package com.kostas.gohealth.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -129,62 +130,65 @@ fun LeaderboardsScreen() {
 
     if (topWaterUser != null && topCaloriesUser != null && topPushUpsUser != null && topStepsUser != null && topTotalStepsUser != null) { // Loading Screen
         // Draws the screen
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 24.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                Text(
-                    text = "Daily Goals Completed",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFD4AF37)
-                )
-
-                topWaterUser?.let { user ->
-                    // Checks if the current user is the top user, if he is, make his score null to know not to draw a specific component
-                    val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.waterGoalsCompleted?.toString() ?: "0")
-                    LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.water, "Water", user.waterGoalsCompleted.toString(), currentUserScore)
-                }
-
-                topCaloriesUser?.let { user ->
-                    val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.caloriesGoalsCompleted?.toString() ?: "0")
-                    LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.calories, "Calories", user.caloriesGoalsCompleted.toString(), currentUserScore)
-                }
-
-                topPushUpsUser?.let { user ->
-                    val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.pushUpsGoalsCompleted?.toString() ?: "0")
-                    LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.push_ups, "Push-ups", user.pushUpsGoalsCompleted.toString(), currentUserScore)
-                }
-
-                topStepsUser?.let { user ->
-                    val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.stepsGoalsCompleted?.toString() ?: "0")
-                    LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.steps, "Steps", user.stepsGoalsCompleted.toString(), currentUserScore)
-                }
-            }
+        Column(modifier = Modifier.fillMaxSize()) {
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface)
 
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 24.dp)
             ) {
-                Text(
-                    text = "Total Steps",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFD4AF37)
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                ) {
+                    Text(
+                        text = "Daily Goals Completed",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFD4AF37)
+                    )
 
-                topTotalStepsUser?.let { user ->
-                    val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.totalSteps?.toString() ?: "0")
-                    LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.steps, "Steps", user.totalSteps.toString(), currentUserScore)
+                    topWaterUser?.let { user ->
+                        // Checks if the current user is the top user, if he is, make his score null to know not to draw a specific component
+                        val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.waterGoalsCompleted?.toString() ?: "0")
+                        LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.water, "Water", user.waterGoalsCompleted.toString(), currentUserScore)
+                    }
+
+                    topCaloriesUser?.let { user ->
+                        val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.caloriesGoalsCompleted?.toString() ?: "0")
+                        LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.calories, "Calories", user.caloriesGoalsCompleted.toString(), currentUserScore)
+                    }
+
+                    topPushUpsUser?.let { user ->
+                        val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.pushUpsGoalsCompleted?.toString() ?: "0")
+                        LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.push_ups, "Push-ups", user.pushUpsGoalsCompleted.toString(), currentUserScore)
+                    }
+
+                    topStepsUser?.let { user ->
+                        val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.stepsGoalsCompleted?.toString() ?: "0")
+                        LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.steps, "Steps", user.stepsGoalsCompleted.toString(), currentUserScore)
+                    }
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                ) {
+                    Text(
+                        text = "Total Steps",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFD4AF37)
+                    )
+
+                    topTotalStepsUser?.let { user ->
+                        val currentUserScore = if (currentUserId == user.userId) null else (currentUser?.totalSteps?.toString() ?: "0")
+                        LeaderboardBox(avatarMap.getValue(user.profilePictureString), user.username, R.drawable.steps, "Steps", user.totalSteps.toString(), currentUserScore)
+                    }
                 }
             }
         }
